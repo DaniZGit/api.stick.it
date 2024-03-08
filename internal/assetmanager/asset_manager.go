@@ -9,9 +9,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
-	"github.com/DaniZGit/api.stick.it/internal/environment"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )

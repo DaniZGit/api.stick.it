@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
-	"github.com/DaniZGit/api.stick.it/internal/environment"
 	"github.com/DaniZGit/api.stick.it/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"

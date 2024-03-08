@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/DaniZGit/api.stick.it/internal/environment"
+	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/joho/godotenv"
 	"github.com/pressly/goose/v3"
 

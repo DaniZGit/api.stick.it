@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
+	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	"github.com/DaniZGit/api.stick.it/internal/db"
-	"github.com/DaniZGit/api.stick.it/internal/environment"
 	api_middleware "github.com/DaniZGit/api.stick.it/internal/middleware"
 	"github.com/DaniZGit/api.stick.it/internal/routes"
 	"github.com/joho/godotenv"

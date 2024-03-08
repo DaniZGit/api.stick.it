@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/DaniZGit/api.stick.it/internal/environment"
+	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

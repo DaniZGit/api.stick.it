@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/DaniZGit/api.stick.it/environment"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
-	"github.com/DaniZGit/api.stick.it/internal/environment"
 	"github.com/jackc/pgx/v5"
 )
 
