@@ -1,0 +1,15 @@
+version: "3"
+services:
+  database:
+    image: postgis/postgis:16-master
+    restart: always
+    ports:
+      - 5432:5432
+    # Required when running on platform other than amd64, like Apple M1/M2:
+    # platform: linux/amd64
+    volumes:
+      - ./volumes/postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "api.stick.it"

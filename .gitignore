@@ -1,0 +1,14 @@
+# binaries
+bin
+
+# sqlc generated output
+internal/db/generated
+
+# vendor
+vendor
+
+# environment file
+.env
+
+# docker volumes
+cmd/docker/volumes/*

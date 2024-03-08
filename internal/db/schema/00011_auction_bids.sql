@@ -1,0 +1,12 @@
+-- +goose Up
+CREATE TABLE auction_bids (
+	id UUID PRIMARY KEY,
+	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  price MONEY NOT NULL,
+  auction_offer_id UUID NOT NULL,
+  user_id UUID NOT NULL
+);
+
+-- +goose Down
+DROP TABLE auction_bids;
