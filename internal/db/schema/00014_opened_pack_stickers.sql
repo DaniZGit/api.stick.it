@@ -6,4 +6,4 @@ CREATE TABLE opened_pack_stickers (
 );
 
 -- +goose Down
-DROP TABLE opened_pack_stickers;
+DROP TABLE IF EXISTS opened_pack_stickers;

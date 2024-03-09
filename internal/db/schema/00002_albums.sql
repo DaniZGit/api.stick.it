@@ -11,4 +11,4 @@ CREATE TABLE albums (
 );
 
 -- +goose Down
-DROP TABLE albums;
+DROP TABLE IF EXISTS albums;

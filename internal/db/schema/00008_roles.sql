@@ -7,4 +7,4 @@ CREATE TABLE roles (
 );
 
 -- +goose Down
-DROP TABLE roles;
+DROP TABLE IF EXISTS roles;

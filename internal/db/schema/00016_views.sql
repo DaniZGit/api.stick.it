@@ -6,4 +6,4 @@ CREATE VIEW albumfiles AS (
 );
 
 -- +goose Down
-DROP VIEW albumfiles;
+DROP VIEW IF EXISTS albumfiles;

@@ -7,4 +7,4 @@ CREATE TABLE user_stickers (
 );
 
 -- +goose Down
-DROP TABLE user_stickers;
+DROP TABLE IF EXISTS user_stickers;

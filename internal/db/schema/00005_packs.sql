@@ -10,4 +10,4 @@ CREATE TABLE packs (
 );
 
 -- +goose Down
-DROP TABLE packs;
+DROP TABLE IF EXISTS packs;

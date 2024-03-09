@@ -38,19 +38,20 @@ func(ctx ApiContext) ErrorResponse(code int, err error) error {
 		case errors.As(err, &pgErr):
 			// map db error field to payload fields
 			// db error example: duplicate key value violates unique constraint (username/email field)
-			var mappedDbFields = map[string]string {
+			var mappedConstraintErrors = map[string]string {
 				"users_username_key": "Username",
 				"users_email_key": "Email",
+				"albums_title_unique": "Title",
 			}
 
 			// return db error in the same format as validation errors 
-			if field, ok := mappedDbFields[pgErr.ConstraintName]; ok {
+			if field, ok := mappedConstraintErrors[pgErr.ConstraintName]; ok {
 				return ctx.JSON(code, echo.Map{
 					"type": "db",
 					"errors": []ValidationError{
 						{
 							Field: field,
-							Tag: pgErr.Code,
+							Tag: 	 pgErr.Code,
 						},
 					},
 				})
@@ -61,8 +62,8 @@ func(ctx ApiContext) ErrorResponse(code int, err error) error {
 			errors := []ValidationError{}
 			for _, err := range validationErrs {
 				e := ValidationError{
-					Field:           err.Field(),
-					Tag:             err.Tag(),
+					Field: err.Field(),
+					Tag:   err.Tag(),
 				}
 
 				errors = append(errors, e)

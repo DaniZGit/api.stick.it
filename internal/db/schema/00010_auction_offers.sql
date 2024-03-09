@@ -9,4 +9,4 @@ CREATE TABLE auction_offers (
 );
 
 -- +goose Down
-DROP TABLE auction_offers;
+DROP TABLE IF EXISTS auction_offers;

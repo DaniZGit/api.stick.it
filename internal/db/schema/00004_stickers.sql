@@ -13,4 +13,4 @@ CREATE TABLE stickers (
 );
 
 -- +goose Down
-DROP TABLE stickers;
+DROP TABLE IF EXISTS stickers;

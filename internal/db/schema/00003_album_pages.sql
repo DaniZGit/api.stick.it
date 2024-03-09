@@ -9,4 +9,4 @@ CREATE TABLE album_pages (
 );
 
 -- +goose Down
-DROP TABLE album_pages;
+DROP TABLE IF EXISTS album_pages;

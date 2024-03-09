@@ -8,4 +8,4 @@ CREATE TABLE files (
 );
 
 -- +goose Down
-DROP TABLE files;
+DROP TABLE IF EXISTS files;

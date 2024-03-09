@@ -7,4 +7,4 @@ CREATE TABLE rarities (
 );
 
 -- +goose Down
-DROP TABLE rarities;
+DROP TABLE IF EXISTS rarities;

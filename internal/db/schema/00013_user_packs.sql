@@ -7,4 +7,4 @@ CREATE TABLE user_packs (
 );
 
 -- +goose Down
-DROP TABLE user_packs;
+DROP TABLE IF EXISTS user_packs;

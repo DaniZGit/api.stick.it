@@ -9,4 +9,4 @@ CREATE TABLE opened_packs (
 );
 
 -- +goose Down
-DROP TABLE opened_packs;
+DROP TABLE IF EXISTS opened_packs;
