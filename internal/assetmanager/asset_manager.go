@@ -12,8 +12,7 @@ import (
 	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/gofrs/uuid"
 )
 
 // Joins path parameters to assets base url that is defined in .env file
@@ -41,7 +40,9 @@ func GetAssetsFileUrl(paths ...string) string {
 	return url
 }
 
-func CreateFile(f *multipart.FileHeader, ctx *app.ApiContext, folder, filename string) (database.File, error) {
+func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder string, uuidFilename uuid.UUID) (database.File, error) {
+	filename := uuidFilename.String()
+	
 	// append extension to filename if it doesn't have one
 	ext := filepath.Ext(f.Filename)
 	if len(ext) > 0 {
@@ -56,7 +57,7 @@ func CreateFile(f *multipart.FileHeader, ctx *app.ApiContext, folder, filename s
 	
 	// create file in db
 	file, err := ctx.Queries.CreateFile(ctx.Request().Context(), database.CreateFileParams{
-		ID: pgtype.UUID{Bytes: uuid.New(), Valid: true},
+		ID: uuidFilename,
 		Name: fileInfo.Name(),
 		Path: filepath.Join(folder, filename),
 	})

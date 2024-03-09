@@ -8,8 +8,7 @@ import (
 	"github.com/DaniZGit/api.stick.it/internal/auth"
 	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/gofrs/uuid"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,7 +18,7 @@ import (
 ////////////////////////
 func UserRegister(c echo.Context) error {
 	ctx := c.(*app.ApiContext)
-
+	
 	// bind payload to struct
 	u := new(data.UserRegisterParams)
 	if err := ctx.Bind(u); err != nil {
@@ -39,7 +38,7 @@ func UserRegister(c echo.Context) error {
 
 	// create user
 	user, err := ctx.Queries.CreateUser(ctx.Request().Context(), database.CreateUserParams{
-		ID: pgtype.UUID{Bytes: uuid.New(), Valid: true},
+		ID: uuid.Must(uuid.NewV4()),
 		Username: u.Username,
 		Email: u.Email,
 		Password: string(hashedPassword),

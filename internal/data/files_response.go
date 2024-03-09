@@ -2,18 +2,18 @@ package data
 
 import (
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/gofrs/uuid"
 )
 
 type FileResponse struct {
-	ID pgtype.UUID `json:"id"`
+	ID uuid.NullUUID `json:"id"`
 	Name string `json:"name"`
 	Url string `json:"url"`
 }
 
-func CastToFileResponse(f database.File) FileResponse {
+func CastToFileResponse(file database.File) FileResponse {
 	return FileResponse{
-		ID: f.ID,
-		Name: f.Name,
+		ID: uuid.NullUUID{UUID: file.ID, Valid: true},
+		Name: file.Name,
 	}
 }

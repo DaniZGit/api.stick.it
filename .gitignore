@@ -12,3 +12,6 @@ vendor
 
 # docker volumes
 cmd/docker/volumes/*
+
+# public assets
+assets/public/*
