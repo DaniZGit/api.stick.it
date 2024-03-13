@@ -9,6 +9,10 @@ type AlbumCreateRequest struct {
 	Featured bool `json:"featured" form:"featured"`
 }
 
+type AlbumGetRequest struct {
+	ID string `param:"id" validate:"required"`
+}
+
 type AlbumUpdateRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 	Title string `json:"title" form:"title"`

@@ -16,15 +16,15 @@ import (
 )
 
 // Joins path parameters to assets base url that is defined in .env file
-func GetPublicAssetsFileUrl(filename string, returnEmpty bool) string {
-	if returnEmpty && len(filename) <= 0 {
-		return "";
+func GetPublicAssetsFileUrl(filename string, defaultValue string) string {
+	if len(filename) <= 0 {
+		return defaultValue;
 	}
 
 	url, err := url.JoinPath(environment.AssetsUrl(), filename)
 
 	if err != nil {
-		return ""
+		return defaultValue
 	}
 
 	return url

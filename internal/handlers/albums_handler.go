@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"os"
 	"strconv"
@@ -30,25 +29,33 @@ func GetAlbums(c echo.Context) error {
 
 	albums, err := ctx.Queries.GetAlbums(ctx.Request().Context(), int32(limit))
 	if err != nil {
-		return ctx.JSON(http.StatusNotFound, ctx.ErrorResponse(http.StatusNotFound, err))
+		return ctx.ErrorResponse(http.StatusNotFound, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.CastToAlbumsResponse(albums))
+	return ctx.JSON(http.StatusCreated, data.BuildAlbumResponse(albums, nil))
 }
 
 ////////////////////////////
-/* GET - "/albums/:title" */
+/* GET - "/albums/:id" */
 ///////////////////////////
 func GetAlbum(c echo.Context) error {
 	ctx := c.(*app.ApiContext)
 
-	id := ctx.Param("id")
-	album, err := ctx.Queries.GetAlbum(ctx.Request().Context(), uuid.FromStringOrNil(id))
-	if err != nil {
-		return ctx.ErrorResponse(http.StatusNotFound, errors.New("album does not exist"))
+	a := new(data.AlbumGetRequest)
+	if err := c.Bind(a); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
 
-	return ctx.JSON(http.StatusOK, data.CastToAlbumResponse(album))
+	if err := ctx.Validate(a); err != nil {
+		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
+	}
+
+	album, err := ctx.Queries.GetAlbum(ctx.Request().Context(), uuid.FromStringOrNil(a.ID))
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotFound, err)
+	}
+
+	return ctx.JSON(http.StatusOK, data.BuildAlbumResponse(album, nil))
 }
 
 ////////////////////////////
@@ -67,39 +74,31 @@ func CreateAlbum(c echo.Context) error {
 	}
 
 	newUUID := uuid.Must(uuid.NewV4())
-	fileUUID := uuid.UUID{}
+	file := database.File{}
 
 	// get uploaded file
 	f, err := ctx.FormFile("file")
 	if err == nil {
-		file, err := assetmanager.CreateFileWithUUID(f, ctx, "albums", newUUID)
+		file, err = assetmanager.CreateFileWithUUID(f, ctx, "albums", newUUID)
 		if err != nil {
 			return ctx.ErrorResponse(http.StatusInternalServerError, err)
 		}
-
-		fileUUID = file.ID
 	}
 	
 	// create album
-	_, err = ctx.Queries.CreateAlbum(ctx.Request().Context(), database.CreateAlbumParams{
+	album, err := ctx.Queries.CreateAlbum(ctx.Request().Context(), database.CreateAlbumParams{
 		ID: newUUID,
 		Title: a.Title,
 		DateFrom: pgtype.Timestamp{Time: utils.StringToTime(a.DateFrom, true), Valid: true},
 		DateTo: pgtype.Timestamp{Time: utils.StringToTime(a.DateTo, false), Valid: true},
 		Featured: pgtype.Bool{Bool: a.Featured, Valid: true},
-		FileID: uuid.NullUUID{UUID: fileUUID, Valid: !fileUUID.IsNil()},
+		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	// get album with files
-	album, err := ctx.Queries.GetAlbum(ctx.Request().Context(), newUUID)
-	if err != nil {
-		return ctx.ErrorResponse(http.StatusInternalServerError, err)
-	}
-
-	return ctx.JSON(http.StatusCreated, data.CastToAlbumResponse(album))
+	return ctx.JSON(http.StatusCreated, data.BuildAlbumResponse(album, &file))
 }
 
 ///////////////////////////////
@@ -127,10 +126,7 @@ func UpdateAlbum(c echo.Context) error {
 	} else {
 		// get current file, if any
 		fileUUID := uuid.FromStringOrNil(a.FileID)
-		file, err = ctx.Queries.GetFile(ctx.Request().Context(), fileUUID)
-		if err != nil {
-			return ctx.ErrorResponse(http.StatusInternalServerError, err)
-		}
+		file, _ = ctx.Queries.GetFile(ctx.Request().Context(), fileUUID)
 	}
 	
 	// update album
@@ -146,11 +142,11 @@ func UpdateAlbum(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.CastToAlbumUpdateResponse(album, file))
+	return ctx.JSON(http.StatusCreated, data.BuildAlbumResponse(album, &file))
 }
 
 ///////////////////////////////
-/* DELETE - "/albums/:title" */
+/* DELETE - "/albums/:id" */
 ///////////////////////////////
 func DeleteAlbum(c echo.Context) error {
 	ctx := c.(*app.ApiContext)

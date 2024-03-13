@@ -5,6 +5,12 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+type File struct {
+	ID uuid.NullUUID `json:"id"`
+	Name string `json:"name"`
+	Url string `json:"url"`
+}
+
 type FileResponse struct {
 	ID uuid.NullUUID `json:"id"`
 	Name string `json:"name"`

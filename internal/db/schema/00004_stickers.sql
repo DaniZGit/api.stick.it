@@ -7,7 +7,7 @@ CREATE TABLE stickers (
   "left" DECIMAL NOT NULL,
   "top" DECIMAL NOT NULL,
   "type" VARCHAR(255) NOT NULL,
-  album_page_id UUID NOT NULL,
+  page_id UUID NOT NULL,
   rarity_id UUID NOT NULL,
   file_id UUID
 );

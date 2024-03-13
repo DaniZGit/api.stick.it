@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE album_pages (
+CREATE TABLE pages (
 	id UUID PRIMARY KEY,
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -9,4 +9,4 @@ CREATE TABLE album_pages (
 );
 
 -- +goose Down
-DROP TABLE IF EXISTS album_pages;
+DROP TABLE IF EXISTS pages;

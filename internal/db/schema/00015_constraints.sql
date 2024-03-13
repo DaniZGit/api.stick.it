@@ -6,14 +6,14 @@ ALTER TABLE users ADD CONSTRAINT users_role_id_roles_id FOREIGN KEY (role_id) RE
 -- albums
 ALTER TABLE albums ADD CONSTRAINT albums_file_id_files_id FOREIGN KEY (file_id) REFERENCES files(id);
 
--- album_pages
-ALTER TABLE album_pages ADD CONSTRAINT album_pages_album_id_albums_id FOREIGN KEY (album_id) REFERENCES albums(id);
-ALTER TABLE album_pages ADD CONSTRAINT album_pages_file_id_files_id FOREIGN KEY (file_id) REFERENCES files(id);
+-- pages
+ALTER TABLE pages ADD CONSTRAINT pages_album_id_albums_id FOREIGN KEY (album_id) REFERENCES albums(id);
+ALTER TABLE pages ADD CONSTRAINT pages_file_id_files_id FOREIGN KEY (file_id) REFERENCES files(id);
 
 -- stickers
 ALTER TABLE stickers ADD CONSTRAINT stickers_rarity_id_rarities_id FOREIGN KEY (rarity_id) REFERENCES rarities(id);
 ALTER TABLE stickers ADD CONSTRAINT stickers_file_id_files_id FOREIGN KEY (file_id) REFERENCES files(id);
-ALTER TABLE stickers ADD CONSTRAINT stickers_album_page_id_album_pages_id FOREIGN KEY (rarity_id) REFERENCES rarities(id);
+ALTER TABLE stickers ADD CONSTRAINT stickers_page_id_pages_id FOREIGN KEY (rarity_id) REFERENCES rarities(id);
 
 -- user_stickers
 ALTER TABLE user_stickers ADD CONSTRAINT user_stickers_user_id_users_id FOREIGN KEY (user_id) REFERENCES users(id);
@@ -48,11 +48,11 @@ ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_user_id_users_id FOREIGN KE
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_file_id_files_id;
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_id_roles_id;
 ALTER TABLE albums DROP CONSTRAINT IF EXISTS albums_file_id_files_id;
-ALTER TABLE album_pages DROP CONSTRAINT IF EXISTS album_pages_album_id_albums_id;
-ALTER TABLE album_pages DROP CONSTRAINT IF EXISTS album_pages_file_id_files_id;
+ALTER TABLE pages DROP CONSTRAINT IF EXISTS pages_album_id_albums_id;
+ALTER TABLE pages DROP CONSTRAINT IF EXISTS pages_file_id_files_id;
 ALTER TABLE stickers DROP CONSTRAINT IF EXISTS stickers_rarity_id_rarities_id;
 ALTER TABLE stickers DROP CONSTRAINT IF EXISTS stickers_file_id_files_id;
-ALTER TABLE stickers DROP CONSTRAINT IF EXISTS stickers_album_page_id_album_pages_id;
+ALTER TABLE stickers DROP CONSTRAINT IF EXISTS stickers_page_id_pages_id;
 ALTER TABLE user_stickers DROP CONSTRAINT IF EXISTS user_stickers_user_id_users_id;
 ALTER TABLE user_stickers DROP CONSTRAINT IF EXISTS user_stickers_sticker_id_stickers_id;
 ALTER TABLE packs DROP CONSTRAINT IF EXISTS packs_album_id_albums_id;

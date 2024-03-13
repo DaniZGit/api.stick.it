@@ -20,4 +20,6 @@ func V1(e *echo.Echo) {
 	v1.POST("/albums", handlers.CreateAlbum)
 	v1.PUT("/albums/:id", handlers.UpdateAlbum)
 	v1.DELETE("/albums/:id", handlers.DeleteAlbum)
+
+	v1.POST("/pages", handlers.CreatePage)
 }
