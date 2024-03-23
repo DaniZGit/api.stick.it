@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -43,4 +44,14 @@ func StringToPgTime(timestamp string, returnNow bool) pgtype.Timestamp {
 	}
 
 	return pgtype.Timestamp{Time: t, Valid: true}
+}
+
+func FloatToPgNumeric(value, defaultValue float32) pgtype.Numeric {
+	numeric := &pgtype.Numeric{}
+	err := numeric.Scan(fmt.Sprintf("%.2f", value))
+	if err != nil {
+		return pgtype.Numeric{Int: big.NewInt(int64(defaultValue)), Valid: true}
+	}
+
+	return *numeric
 }

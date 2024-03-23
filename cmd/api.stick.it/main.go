@@ -1,9 +1,10 @@
 package main
 
 import (
-	"context"
+	"fmt"
 	"log"
 
+	"github.com/DaniZGit/api.stick.it/cmd/seed"
 	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	"github.com/DaniZGit/api.stick.it/internal/db"
@@ -26,8 +27,8 @@ func main() {
 	e := echo.New()
 
 	// create db instance
-	conn, queries := db.Init()
-	defer conn.Close(context.Background())
+	dbPool, queries := db.Init()
+	defer dbPool.Close()
 
 	// use extended context middleware
 	e.Use(app.ExtendedContext(queries))
@@ -46,11 +47,16 @@ func main() {
 	// expose assets folder
 	e.Static("/assets", "assets/public")
 
+	// initialize default roles and users on launch
+	seed.SeedRoles(queries)
+	seed.SeedUsers(queries)
+
 	// start Echo server
 	startServer(e)
 }
 
 func startServer(e *echo.Echo) {
+	fmt.Println("Starting server...")
 	serverUrl := environment.ServerUrl()
 
 	// Start

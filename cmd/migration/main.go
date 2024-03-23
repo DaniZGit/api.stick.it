@@ -20,19 +20,30 @@ func main() {
 		log.Fatal("Error while loading .env file:", err)
 	}
 	
-	dbDriver := environment.GooseDriver()
-	dbString := environment.GooseDSN()
-	
+	// reads bash arguments
 	args := os.Args
 	if (len(args) < 2) {
 		fmt.Println("Please specify a goose command: up | down | reset | etc...")
 		return
 	}
 
-	// such as up | down | reset | etc...
+	// commands such as up | down | reset | etc...
 	command := args[1]
 
-	db, err := goose.OpenDBWithDriver(dbDriver, dbString)
+	// open db with goose
+	dbCredentials := environment.DbCredentials()
+	db, err := goose.OpenDBWithDriver(
+		"postgres",
+		fmt.Sprintf(
+			"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+			dbCredentials.User,
+			dbCredentials.Pass,
+			dbCredentials.Host,
+			dbCredentials.Port,
+			dbCredentials.Name,
+			dbCredentials.SSL,
+		),
+	)
 	if err != nil {
 		log.Fatalf("goose: failed to open DB: %v\n", err)
 	}

@@ -3,41 +3,27 @@ package environment
 import (
 	"log"
 	"os"
+	"strconv"
+	"time"
 )
 
 func AssetsUrl() string {
-	val := os.Getenv("ASSETS_URL")
-	if val == "" {
-		log.Fatal("ASSETS_URL is not found in the environment.")
-	}
-	
+	val := readEnv("ASSETS_URL")
 	return val
 }
 
 func ServerUrl() string {
-	val := os.Getenv("SERVER_URL")
-	if val == "" {
-		log.Fatal("SERVER_URL is not found in the environment.")
-	}
-
+	val := readEnv("SERVER_URL")
 	return val
 }
 
 func FrontendUrl() string {
-	val := os.Getenv("FRONTEND_URL")
-	if val == "" {
-		log.Fatal("FRONTEND_URL is not found in the environment.")
-	}
-
+	val := readEnv("FRONTEND_URL")
 	return val
 }
 
 func JwtSecret() string {
-	val := os.Getenv("JWT_SECRET")
-	if val == "" {
-		log.Fatal("JWT_SECRET is not found in the environment.")
-	}
-
+	val := readEnv("JWT_SECRET")
 	return val
 }
 
@@ -47,31 +33,18 @@ type DbCredentialsType struct {
 	User string;
 	Pass string;
 	Name string;
+	SSL string;
 }
 func DbCredentials() DbCredentialsType {
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		log.Fatal("DB_HOST is not found in the environment.")
-	}
+	dbHost := readEnv("DB_HOST")
+	dbPort := readEnv("DB_PORT")
+	dbUser := readEnv("DB_USER")
+	dbPass := readEnv("DB_PASS")
+	dbName := readEnv("DB_NAME")
 
-	dbPort := os.Getenv("DB_PORT")
-	if dbPort == "" {
-		log.Fatal("DB_PORT is not found in the environment.")
-	}
-
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		log.Fatal("DB_USER is not found in the environment.")
-	}
-
-	dbPass := os.Getenv("DB_PASS")
-	if dbPass == "" {
-		log.Fatal("DB_PASS is not found in the environment.")
-	}
-
-	dbName := os.Getenv("DB_NAME")
-	if dbName == "" {
-		log.Fatal("DB_NAME is not found in the environment.")
+	dbSSL := readEnv("DB_SSL")
+	if dbSSL != "enable" && dbSSL != "disable" {
+		log.Fatal("DB_SSL must be either 'enable' or 'disable'")
 	}
 
 	return DbCredentialsType{
@@ -80,23 +53,70 @@ func DbCredentials() DbCredentialsType {
 		User: dbUser,
 		Pass: dbPass,
 		Name: dbName,
+		SSL: dbSSL,
 	}
 }
 
-func GooseDriver() string {
-	dbDriver := os.Getenv("GOOSE_DRIVER")
-	if dbDriver == "" {
-		log.Fatal("GOOSE_DRIVER is not found in the environment.")
+type DBConfigType struct {
+	MaxConns int32
+	MinConns int32
+	MaxConnLifetime time.Duration
+	MaxConnIdleTime time.Duration
+	HealthCheckPeriod time.Duration
+	ConnectTimeout time.Duration
+}
+func DbConfig() DBConfigType {
+	maxConnVar := readEnv("DB_MAX_CONN")
+	maxConn, err := strconv.Atoi(maxConnVar)
+	if err != nil || maxConn <= 0 {
+		log.Fatal("DB_MAX_CONN value must be a positive number greater than 0")
 	}
 
-	return dbDriver
+	minConnVar := readEnv("DB_MIN_CONN")
+	minConn, err := strconv.Atoi(minConnVar)
+	if err != nil || minConn < 0 {
+		log.Fatal("DB_MIN_CONN value must be a positive number")
+	}
+
+	lifeTimeVar := readEnv("DB_LIFE_TIME")
+	lifeTime, err := strconv.Atoi(lifeTimeVar)
+	if err != nil || lifeTime < 0 {
+		log.Fatal("DB_LIFE_TIME value must be a positive number (in seconds)")
+	}
+
+	idleTimeVar := readEnv("DB_IDLE_TIME")
+	idleTime, err := strconv.Atoi(idleTimeVar)
+	if err != nil || idleTime < 0 {
+		log.Fatal("DB_IDLE_TIME value must be a positive number (in seconds)")
+	}
+
+	healthCheckVar := readEnv("DB_HC_PERIOD")
+	healthCheck, err := strconv.Atoi(healthCheckVar)
+	if err != nil || healthCheck < 0 {
+		log.Fatal("DB_HC_PERIOD value must be a positive number greater than 0 (in seconds)")
+	}
+
+	timeoutVar := readEnv("DB_TIMEOUT")
+	timeout, err := strconv.Atoi(timeoutVar)
+	if err != nil || timeout <= 0 {
+		log.Fatal("DB_TIMEOUT value must be a positive number greater than 0 (in seconds)")
+	}
+
+	return DBConfigType{
+		MaxConns: int32(maxConn),
+		MinConns: int32(minConn),
+		MaxConnLifetime: time.Second * time.Duration(maxConn),
+		MaxConnIdleTime: time.Second * time.Duration(idleTime),
+		HealthCheckPeriod: time.Second * time.Duration(healthCheck),
+		ConnectTimeout: time.Second * time.Duration(timeout),
+	}
 }
 
-func GooseDSN() string {
-	dbstring := os.Getenv("GOOSE_DBSTRING")
-	if dbstring == "" {
-		log.Fatal("GOOSE_DBSTRING is not found in the environment.")
+func readEnv(name string) string {
+	variable := os.Getenv(name)
+	if variable == "" {
+		log.Fatal(name, " is not found in the environment.")
 	}
 
-	return dbstring
+	return variable
 }

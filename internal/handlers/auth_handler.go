@@ -10,7 +10,6 @@ import (
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/gofrs/uuid"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/crypto/bcrypt"
 )
 
 ////////////////////////
@@ -31,7 +30,7 @@ func UserRegister(c echo.Context) error {
 	}
 
 	// use bcrypt to hash user password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	hashedPassword, err := auth.GeneratePassword(u.Password)
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
@@ -90,7 +89,7 @@ func UserLogin(c echo.Context) error {
 	}
 
 	// compare user's password with their hashed variant in DB
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password))
+	err = auth.ValidatePassword(u.Password, user.Password)
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusUnauthorized, errors.New("email or password does not match"))
 	}
