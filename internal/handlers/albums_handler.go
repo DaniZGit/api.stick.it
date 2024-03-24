@@ -112,6 +112,10 @@ func UpdateAlbum(c echo.Context) error {
 	if err := c.Bind(a); err != nil {
 		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
+
+	if err := ctx.Validate(a); err != nil {
+		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
+	}
 	
 	// check for file
 	file := database.File{}

@@ -35,6 +35,7 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File) any {
 					ID: uuid.NullUUID{UUID: value.ID, Valid: !value.ID.IsNil()},
 					CreatedAt: value.CreatedAt,
 					Title: value.Title,
+					Type: value.Type,
 					Top: value.Top,
 					Left: value.Left,
 					File: &File{
@@ -78,7 +79,7 @@ func castToStickersResponse(stickersRows []database.GetPageStickersRow) Stickers
 			sticker.File = &File{
 				ID: stickersRow.StickerFileID,
 				Name: stickersRow.StickerFileName.String,
-				Url: assetmanager.GetPublicAssetsFileUrl(stickersRow.StickerFileName.String, ""),
+				Url: assetmanager.GetPublicAssetsFileUrl(stickersRow.StickerFilePath.String, ""),
 			}
 		}
 

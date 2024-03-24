@@ -10,3 +10,14 @@ SELECT
 FROM stickers s
 LEFT JOIN files sf ON s.file_id = sf.id
 WHERE s.page_id = $1;
+
+-- name: UpdateSticker :one
+UPDATE stickers
+SET title = $1,
+    "type" = $2,
+    "top" = $3,
+    "left" = $4,
+    file_id = $5,
+    rarity_id = $6
+WHERE id = $7
+RETURNING *;

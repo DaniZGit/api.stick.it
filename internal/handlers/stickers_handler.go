@@ -74,3 +74,50 @@ func GetPageStickers(c echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(stickers, &database.File{}))
 }
+
+////////////////////////////
+/* PUT - "/stickers/:id"  */
+////////////////////////////
+func UpdateSticker(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	s := new(data.UpdateStickerRequest)
+	if err := ctx.Bind(s); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(s); err != nil {
+		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
+	}
+
+	// check for file
+	file := database.File{}
+	f, err := ctx.FormFile("file")
+	if err == nil {
+		// new file
+		fileUUID := uuid.Must(uuid.NewV4())
+		file, err = assetmanager.CreateFileWithUUID(f, ctx, "stickers", fileUUID)
+		if err != nil {
+			return ctx.ErrorResponse(http.StatusInternalServerError, err)
+		}
+	} else {
+		// get current file, if any
+		fileUUID := uuid.FromStringOrNil(s.FileID)
+		file, _ = ctx.Queries.GetFile(ctx.Request().Context(), fileUUID)
+	}
+
+	sticker, err := ctx.Queries.UpdateSticker(ctx.Request().Context(), database.UpdateStickerParams{
+		ID: s.ID,
+		Title: s.Title,
+		Type: s.Type,
+		Top: utils.FloatToPgNumeric(s.Top, 0),
+		Left: utils.FloatToPgNumeric(s.Left, 0),
+		RarityID: s.RarityID,
+		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
+	})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(sticker, &file))
+}
