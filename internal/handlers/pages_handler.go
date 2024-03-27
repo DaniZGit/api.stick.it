@@ -43,3 +43,19 @@ func CreatePage(c echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, data.BuildPageResponse(page, &file))
 }
+
+func GetPage(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	p := new(data.PageGetRequest)
+	if err := ctx.Bind(p); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	page, err := ctx.Queries.GetPage(ctx.Request().Context(), uuid.FromStringOrNil(p.ID))
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	return ctx.JSON(http.StatusOK, data.BuildPageResponse(page, &database.File{}))
+}

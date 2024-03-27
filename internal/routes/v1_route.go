@@ -27,7 +27,8 @@ func V1(e *echo.Echo) {
 	v1.DELETE("/albums/:id", handlers.DeleteAlbum)
 
 	v1.POST("/pages", handlers.CreatePage)
-	v1.GET("/pages/:page_id/stickers", handlers.GetPageStickers)
+	v1.GET("/pages/:id", handlers.GetPage)
+	// v1.GET("/pages/:page_id/stickers", handlers.GetPageStickers)
 
 	v1.POST("/stickers", handlers.CreateSticker)
 	v1.PUT("/stickers/:id", handlers.UpdateSticker)
