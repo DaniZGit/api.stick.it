@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	"github.com/DaniZGit/api.stick.it/internal/assetmanager"
@@ -45,6 +46,11 @@ func CreateSticker(c echo.Context) error {
 		Type: s.Type,
 		Top: utils.FloatToPgNumeric(s.Top, 0),
 		Left: utils.FloatToPgNumeric(s.Left, 0),
+		Width: utils.FloatToPgNumeric(s.Width, 0),
+		Height: utils.FloatToPgNumeric(s.Height, 0),
+		Numerator: int32(s.Numerator),
+		Denominator: int32(s.Denominator),
+		Rotation: utils.FloatToPgNumeric(s.Rotation, 0),
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 		PageID: s.PageID,
 		RarityID: s.RarityID,
@@ -112,6 +118,11 @@ func UpdateSticker(c echo.Context) error {
 		Type: s.Type,
 		Top: utils.FloatToPgNumeric(s.Top, 0),
 		Left: utils.FloatToPgNumeric(s.Left, 0),
+		Width: utils.FloatToPgNumeric(s.Width, 0),
+		Height: utils.FloatToPgNumeric(s.Height, 0),
+		Numerator: int32(s.Numerator),
+		Denominator: int32(s.Denominator),
+		Rotation: utils.FloatToPgNumeric(s.Rotation, 0),
 		RarityID: s.RarityID,
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
@@ -120,4 +131,27 @@ func UpdateSticker(c echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(sticker, &file))
+}
+
+///////////////////////////////
+/* DELETE - "/stickers/:id"  */
+///////////////////////////////
+func DeleteSticker(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	s := new(data.StickerDeleteRequest)
+	if err := c.Bind(s); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	// delete album from DB
+	sticker, err := ctx.Queries.DeleteSticker(ctx.Request().Context(), s.ID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
+	// delete album file from disk
+	_ = os.Remove(assetmanager.GetAssetsFileUrl(sticker.FileID.UUID.String(), ""))
+
+	return ctx.NoContent(http.StatusOK)
 }

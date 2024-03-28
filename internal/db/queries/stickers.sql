@@ -1,6 +1,6 @@
 -- name: CreateSticker :one
-INSERT INTO stickers(id, title, "type", "top", "left", file_id, page_id, rarity_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO stickers(id, title, "type", "top", "left", "width", "height", "numerator", "denominator", "rotation", file_id, page_id, rarity_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *;
 
 -- name: GetPageStickers :many
@@ -17,7 +17,17 @@ SET title = $1,
     "type" = $2,
     "top" = $3,
     "left" = $4,
-    file_id = $5,
-    rarity_id = $6
-WHERE id = $7
+    "width" = $5,
+    "height" = $6,
+    "numerator" = $7,
+    "denominator" = $8,
+    "rotation" = $9,
+    file_id = $10,
+    rarity_id = $11
+WHERE id = $12
+RETURNING *;
+
+-- name: DeleteSticker :one
+DELETE FROM stickers
+WHERE id = $1
 RETURNING *;

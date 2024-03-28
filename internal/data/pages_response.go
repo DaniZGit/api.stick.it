@@ -81,6 +81,11 @@ func castToPageResponse(pageRows []database.GetPageRow) PageResponse {
 				Type: pageRow.StickerType.String,
 				Top: pageRow.StickerTop,
 				Left: pageRow.StickerLeft,
+				Width: pageRow.StickerWidth,
+				Height: pageRow.StickerHeight,
+				Numerator: pageRow.StickerNumerator.Int32,
+				Denominator: pageRow.StickerDenominator.Int32,
+				Rotation: pageRow.StickerRotation,
 				File: &File{
 					ID: pageRow.StickerFileID,
 					Name: pageRow.StickerFileName.String,

@@ -14,6 +14,11 @@ type Sticker struct {
 	Type string `json:"type"`
 	Top pgtype.Numeric `json:"top"`
 	Left pgtype.Numeric `json:"left"`
+	Width pgtype.Numeric `json:"width"`
+	Height pgtype.Numeric `json:"height"`
+	Numerator int32 `json:"numerator"`
+	Denominator int32 `json:"denominator"`
+	Rotation pgtype.Numeric `json:"rotation"`
 	File *File `json:"file"`
 	PageID uuid.UUID `json:"page_id"`
 	RarityID uuid.UUID `json:"rarity_id"`
@@ -38,6 +43,11 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File) any {
 					Type: value.Type,
 					Top: value.Top,
 					Left: value.Left,
+					Width: value.Width,
+					Height: value.Height,
+					Numerator: value.Numerator,
+					Denominator: value.Denominator,
+					Rotation: value.Rotation,
 					File: &File{
 						ID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 						Name: file.Name,
@@ -69,6 +79,11 @@ func castToStickersResponse(stickersRows []database.GetPageStickersRow) Stickers
 			Type: stickersRow.Type,
 			Top: stickersRow.Top,
 			Left: stickersRow.Left,
+			Width: stickersRow.Width,
+			Height: stickersRow.Height,
+			Numerator: stickersRow.Numerator,
+			Denominator: stickersRow.Denominator,
+			Rotation: stickersRow.Rotation,
 			PageID: stickersRow.PageID,
 			RarityID: stickersRow.RarityID,
 			CreatedAt: stickersRow.CreatedAt,
