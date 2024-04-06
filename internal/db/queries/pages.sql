@@ -16,7 +16,7 @@ FROM pages AS p
 LEFT JOIN files AS pf ON p.file_id = pf.id
 LEFT JOIN stickers AS s ON p.id = s.page_id
 LEFT JOIN files AS sf ON s.file_id = sf.id
-WHERE p.id = $1;
+WHERE p.id = $1 AND s.sticker_id IS NULL;
 
 -- name: GetPages :many
 SELECT

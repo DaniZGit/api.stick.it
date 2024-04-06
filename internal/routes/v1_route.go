@@ -33,6 +33,7 @@ func V1(e *echo.Echo) {
 	v1.POST("/stickers", handlers.CreateSticker)
 	v1.PUT("/stickers/:id", handlers.UpdateSticker)
 	v1.DELETE("/stickers/:id", handlers.DeleteSticker)
+	v1.GET("/stickers/:id/rarities", handlers.GetStickerRarities)
 
 	v1.GET("/rarities", handlers.GetRarities)
 	v1.POST("/rarities", handlers.CreateRarity)

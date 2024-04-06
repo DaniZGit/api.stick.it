@@ -53,13 +53,20 @@ func CreateSticker(c echo.Context) error {
 		Rotation: utils.FloatToPgNumeric(s.Rotation, 0),
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 		PageID: s.PageID,
-		RarityID: s.RarityID,
+		RarityID: uuid.NullUUID{UUID: s.RarityID, Valid: !s.RarityID.IsNil()},
+		StickerID: uuid.NullUUID{UUID: s.StickerID, Valid: !s.StickerID.IsNil()},
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(sticker, &file))
+	// get rarity data
+	var rarity = database.Rarity{}
+	if (sticker.RarityID.Valid) {
+		rarity, _ = ctx.Queries.GetRarity(ctx.Request().Context(), sticker.RarityID.UUID)
+	}
+
+	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(sticker, &file, &rarity))
 }
 
 ////////////////////////////
@@ -78,7 +85,7 @@ func GetPageStickers(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(stickers, &database.File{}))
+	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(stickers, &database.File{}, &database.Rarity{}))
 }
 
 ////////////////////////////
@@ -87,7 +94,7 @@ func GetPageStickers(c echo.Context) error {
 func UpdateSticker(c echo.Context) error {
 	ctx := c.(*app.ApiContext)
 
-	s := new(data.UpdateStickerRequest)
+	s := new(data.StickerUpdateRequest)
 	if err := ctx.Bind(s); err != nil {
 		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
@@ -108,7 +115,7 @@ func UpdateSticker(c echo.Context) error {
 		}
 	} else {
 		// get current file, if any
-		fileUUID := uuid.FromStringOrNil(s.FileID)
+		fileUUID := s.FileID
 		file, _ = ctx.Queries.GetFile(ctx.Request().Context(), fileUUID)
 	}
 
@@ -123,14 +130,19 @@ func UpdateSticker(c echo.Context) error {
 		Numerator: int32(s.Numerator),
 		Denominator: int32(s.Denominator),
 		Rotation: utils.FloatToPgNumeric(s.Rotation, 0),
-		RarityID: s.RarityID,
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(sticker, &file))
+	// get rarity data
+	var rarity = database.Rarity{}
+	if (sticker.RarityID.Valid) {
+		rarity, _ = ctx.Queries.GetRarity(ctx.Request().Context(), sticker.RarityID.UUID)
+	}
+
+	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(sticker, &file, &rarity))
 }
 
 ///////////////////////////////
@@ -154,4 +166,23 @@ func DeleteSticker(c echo.Context) error {
 	_ = os.Remove(assetmanager.GetAssetsFileUrl(sticker.FileID.UUID.String(), ""))
 
 	return ctx.NoContent(http.StatusOK)
+}
+
+//////////////////////////////////////
+/*  GET - "/stickers/:id/rarities"	*/
+//////////////////////////////////////
+func GetStickerRarities(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	s := new(data.StickerRaritiesGetRequest)
+	if err := ctx.Bind(s); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	stickers, err := ctx.Queries.GetStickerRarities(ctx.Request().Context(), uuid.NullUUID{UUID: s.StickerID, Valid: !s.StickerID.IsNil()})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, data.BuildStickerResponse(stickers, &database.File{}, &database.Rarity{}))
 }

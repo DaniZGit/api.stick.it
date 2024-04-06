@@ -1,6 +1,6 @@
 -- name: CreateSticker :one
-INSERT INTO stickers(id, title, "type", "top", "left", "width", "height", "numerator", "denominator", "rotation", file_id, page_id, rarity_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+INSERT INTO stickers(id, title, "type", "top", "left", "width", "height", "numerator", "denominator", "rotation", file_id, page_id, rarity_id, sticker_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING *;
 
 -- name: GetPageStickers :many
@@ -22,12 +22,22 @@ SET title = $1,
     "numerator" = $7,
     "denominator" = $8,
     "rotation" = $9,
-    file_id = $10,
-    rarity_id = $11
-WHERE id = $12
+    file_id = $10
+WHERE id = $11
 RETURNING *;
 
 -- name: DeleteSticker :one
 DELETE FROM stickers
 WHERE id = $1
 RETURNING *;
+
+-- name: GetStickerRarities :many
+SELECT 
+  s.*, -- stickers
+  r.id AS sticker_rarity_id, r.title AS sticker_rarity_title, -- sticker rarity
+  sf.id AS sticker_file_id, sf.name AS sticker_file_name, sf.path AS sticker_file_path -- sticker file
+FROM stickers s
+LEFT JOIN rarities r ON s.rarity_id = r.id
+LEFT JOIN files sf ON s.file_id = sf.id
+WHERE sticker_id = $1 AND rarity_id IS NOT NULL
+ORDER BY s.created_at ASC;

@@ -92,7 +92,7 @@ func castToPageResponse(pageRows []database.GetPageRow) PageResponse {
 					Url: assetmanager.GetPublicAssetsFileUrl(pageRow.StickerFilePath.String, ""),
 				},
 				PageID: pageRow.ID,
-				RarityID: pageRow.StickerRarityID.UUID,
+				RarityID: pageRow.StickerRarityID,
 			}
 
 			page.Stickers = append(page.Stickers, sticker)
