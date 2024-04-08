@@ -175,3 +175,22 @@ func DeleteAlbum(c echo.Context) error {
 
 	return ctx.NoContent(http.StatusOK)
 }
+
+////////////////////////////////
+/* GET - "/albums/:id/packs" */
+////////////////////////////////
+func GetAlbumPacks(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	a := new(data.AlbumPacksGetRequest)
+	if err := ctx.Bind(a); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	packs, err := ctx.Queries.GetAlbumPacks(ctx.Request().Context(), a.AlbumID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	return ctx.JSON(http.StatusOK, data.BuildPackResponse(packs, &database.File{}))
+}

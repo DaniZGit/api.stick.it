@@ -25,6 +25,7 @@ func V1(e *echo.Echo) {
 	v1.POST("/albums", handlers.CreateAlbum)
 	v1.PUT("/albums/:id", handlers.UpdateAlbum)
 	v1.DELETE("/albums/:id", handlers.DeleteAlbum)
+	v1.GET("/albums/:id/packs", handlers.GetAlbumPacks)
 
 	v1.POST("/pages", handlers.CreatePage)
 	v1.GET("/pages/:id", handlers.GetPage)
@@ -37,4 +38,13 @@ func V1(e *echo.Echo) {
 
 	v1.GET("/rarities", handlers.GetRarities)
 	v1.POST("/rarities", handlers.CreateRarity)
+
+	v1.POST("/packs", handlers.CreatePack)
+	v1.PUT("/packs/:id", handlers.UpdatePack)
+	v1.DELETE("/packs/:id", handlers.DeletePack)
+	v1.GET("/packs/:id/rarities", handlers.GetPackRarities)
+	
+	v1.POST("/pack-rarities", handlers.CreatePackRarity)
+	v1.PUT("/pack-rarities/:id", handlers.UpdatePackRarity)
+	v1.DELETE("/pack-rarities/:id", handlers.DeletePackRarity)
 }
