@@ -29,6 +29,8 @@ func V1(e *echo.Echo) {
 
 	v1.POST("/pages", handlers.CreatePage)
 	v1.GET("/pages/:id", handlers.GetPage)
+	v1.PUT("/pages/:id", handlers.UpdatePage)
+	v1.DELETE("/pages/:id", handlers.DeletePage)
 	// v1.GET("/pages/:page_id/stickers", handlers.GetPageStickers)
 
 	v1.POST("/stickers", handlers.CreateSticker)

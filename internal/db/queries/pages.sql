@@ -26,3 +26,15 @@ FROM pages p
 LEFT JOIN files pf ON p.file_id = pf.id
 WHERE p.album_id = $1
 ORDER BY sort_order ASC;
+
+-- name: UpdatePage :one
+UPDATE pages SET
+  sort_order = $1,
+  file_id = $2
+WHERE id = $3
+RETURNING *;
+
+-- name: DeletePage :one
+DELETE FROM pages
+WHERE id = $1
+RETURNING *;
