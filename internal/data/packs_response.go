@@ -12,6 +12,7 @@ type Pack struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	Title string `json:"title"`
 	Price int `json:"price"`
+	Amount int `json:"amount"`
 	AlbumID uuid.UUID `json:"album_id"`
 	FileID uuid.UUID `json:"file_id"`
 	File *File `json:"file"`
@@ -50,6 +51,7 @@ func BuildPackResponse(packRows interface{}, file *database.File) any {
 					CreatedAt: value.CreatedAt,
 					Title: value.Title,
 					Price: int(value.Price),
+					Amount: int(value.Amount),
 					AlbumID: value.AlbumID,
 					File: &File{
 						ID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
@@ -90,6 +92,7 @@ func castToAlbumPacksResponse(packsRows []database.GetAlbumPacksRow) PacksRespon
 			CreatedAt: packsRow.CreatedAt,
 			Title: packsRow.Title,
 			Price: int(packsRow.Price),
+			Amount: int(packsRow.Amount),
 			AlbumID: packsRow.AlbumID,
 			FileID: packsRow.FileID.UUID,
 		}

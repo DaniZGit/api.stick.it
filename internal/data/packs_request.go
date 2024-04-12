@@ -8,12 +8,14 @@ type PackCreateRequest struct {
 	AlbumID uuid.UUID `json:"album_id" form:"album_id" validate:"required"`
 	Title string `json:"title" form:"title" validaiton:"required"`
 	Price int `json:"price" form:"price" validaiton:"required"`
+	Amount int `json:"amount" form:"amount" validaiton:"required"`
 }
 
 type PackUpdateRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 	Title string `json:"title" form:"title" validaiton:"required"`
 	Price int `json:"price" form:"price" validaiton:"required"`
+	Amount int `json:"amount" form:"amount" validaiton:"required"`
 	FileID string `json:"file_id" form:"file_id"`
 }
 

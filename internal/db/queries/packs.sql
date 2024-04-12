@@ -1,14 +1,15 @@
 -- name: CreatePack :one
-INSERT INTO packs(id, title, price, album_id, file_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO packs(id, title, price, amount, album_id, file_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: UpdatePack :one
 UPDATE packs SET
   title = $1,
   price = $2,
-  file_id = $3
-WHERE id = $4
+  amount = $3,
+  file_id = $4
+WHERE id = $5
 RETURNING *;
 
 -- name: DeletePack :one
@@ -19,10 +20,8 @@ RETURNING *;
 -- name: GetAlbumPacks :many
 SELECT 
   p.*, -- pack
-  pf.id AS pack_file_id, pf.name AS pack_file_name, pf.path AS pack_file_path, -- pack file
-  pr.id AS pack_rarities_id, pr.pack_id AS pack_rarities_pack_id, pr.rarity_id AS pack_rarities_rarity_id, pr.drop_chance AS pack_rarities_drop_chance -- pack rarities
+  pf.id AS pack_file_id, pf.name AS pack_file_name, pf.path AS pack_file_path -- pack file
 FROM packs AS p
-LEFT JOIN pack_rarities AS pr ON p.id = pr.pack_id
 LEFT JOIN files AS pf ON p.file_id = pf.id
 WHERE p.album_id = $1;
 

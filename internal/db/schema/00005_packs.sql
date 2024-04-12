@@ -5,6 +5,7 @@ CREATE TABLE packs (
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	title VARCHAR(255) NOT NULL,
 	price INTEGER NOT NULL,
+	amount INTEGER NOT NULL,
   album_id UUID NOT NULL,
   rarity_id UUID,
   file_id UUID

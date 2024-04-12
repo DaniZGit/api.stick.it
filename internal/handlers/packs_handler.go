@@ -40,6 +40,7 @@ func CreatePack(c echo.Context) error {
 		AlbumID: p.AlbumID,
 		Title: p.Title,
 		Price: int32(p.Price),
+		Amount: int32(p.Amount),
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
 	if err != nil {
@@ -86,6 +87,7 @@ func UpdatePack(c echo.Context) error {
 		ID: p.ID,
 		Title: p.Title,
 		Price: int32(p.Price),
+		Amount: int32(p.Amount),
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
 	if err != nil {
