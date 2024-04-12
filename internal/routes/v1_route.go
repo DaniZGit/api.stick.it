@@ -49,4 +49,6 @@ func V1(e *echo.Echo) {
 	v1.POST("/pack-rarities", handlers.CreatePackRarity)
 	v1.PUT("/pack-rarities/:id", handlers.UpdatePackRarity)
 	v1.DELETE("/pack-rarities/:id", handlers.DeletePackRarity)
+
+	v1.GET("/shop/packs", handlers.GetShopPacks)
 }
