@@ -6,9 +6,26 @@ RETURNING *;
 -- name: GetUser :one
 SELECT *
 FROM users
-WHERE email=$1;
+WHERE lower(email)=lower($1);
+
+-- name: GetUserByID :one
+SELECT *
+FROM users
+WHERE id=$1;
 
 -- name: GetUsers :many
 SELECT *
 FROM users
 LIMIT $1 OFFSET $2;
+
+-- name: IncrementUserTokens :one
+UPDATE users
+SET tokens = tokens + $1
+WHERE id = $2
+RETURNING *;
+
+-- name: DecrementUserTokens :one
+UPDATE users
+SET tokens = tokens - $1
+WHERE id = $2
+RETURNING *;

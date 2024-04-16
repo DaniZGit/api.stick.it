@@ -10,5 +10,6 @@ type UserResponse struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	Username  string           `json:"username"`
 	Email     string           `json:"email"`
+	Tokens 		int							 `json:"tokens"`
 	Token			string					 `json:"token,omitempty"`
 }

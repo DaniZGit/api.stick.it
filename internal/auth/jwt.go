@@ -7,13 +7,14 @@ import (
 	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
+	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 type JWTClaims struct {
-	Username  string `json:"username"`
-	Role string		   `json:"role"`
+	UserID  uuid.UUID `json:"user_id"`
+	RoleID uuid.NullUUID  `json:"role_id"`
 	jwt.RegisteredClaims
 }
 
@@ -32,8 +33,8 @@ func CreateJwtToken(user database.User) (string, error) {
 
 	// generate jwt token
 	claims := &JWTClaims{
-		Username: user.Username,
-		Role: "user",
+		UserID: user.ID,
+		RoleID: user.RoleID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID: user.ID.String(),
 			ExpiresAt: jwt.NewNumericDate(expirationTime),

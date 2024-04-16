@@ -6,6 +6,8 @@ CREATE TABLE users (
 	username VARCHAR(255) UNIQUE NOT NULL,
 	email VARCHAR(255) UNIQUE NOT NULL,
 	password CHAR(60) NOT NULL,
+	tokens BIGINT NOT NULL DEFAULT 0,
+	version BIGINT NOT NULL DEFAULT 0,
 	file_id UUID,
 	role_id UUID
 );

@@ -26,6 +26,13 @@ type PackRarity struct {
 	DropChance pgtype.Numeric `json:"drop_chance"`
 }
 
+type UserPack struct {
+	ID        uuid.UUID        `json:"id"`
+	UserID uuid.UUID `json:"user_id"`
+	PackID uuid.UUID `json:"pack_id"`
+	Amount int `json:"amount"`
+}
+
 type PackResponse struct {
 	Pack Pack `json:"pack"`
 }
@@ -41,6 +48,10 @@ type PackRaritiesResponse struct {
 type PackRarityResponse struct {
 	PackRarity PackRarity `json:"pack_rarity"`
 }
+
+type UserPackResponse struct {
+	UserPack UserPack `json:"user_pack"`
+} 
 
 func BuildPackResponse(packRows interface{}, file *database.File) any {
 	switch value := packRows.(type) {
@@ -73,6 +84,15 @@ func BuildPackResponse(packRows interface{}, file *database.File) any {
 			}
 		case []database.PackRarity:
 			return castToPackRaritiesResponse(value)
+		case database.UserPack:
+			return UserPackResponse{
+				UserPack: UserPack{
+					ID: value.ID,
+					UserID: value.UserID,
+					PackID: value.PackID,
+					Amount: int(value.Amount),
+				},
+			}
 	}
 
 	return AlbumResponse{}

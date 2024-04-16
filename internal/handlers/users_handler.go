@@ -17,8 +17,7 @@ func GetUser(c echo.Context) error {
 	claims := auth.GetClaimsFromToken(*ctx)
 
 	return ctx.JSON(http.StatusOK, echo.Map{
-		"user_id": claims.ID,
-		"username": claims.Username,
-		"role": claims.Role,
+		"user_id": claims.UserID,
+		"role_id": claims.RoleID,
 	})
 }

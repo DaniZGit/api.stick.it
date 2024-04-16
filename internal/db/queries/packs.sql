@@ -46,3 +46,16 @@ RETURNING *;
 DELETE FROM pack_rarities
 WHERE id = $1
 RETURNING *;
+
+-- name: GetPack :one
+SELECT *
+FROM packs
+WHERE id = $1
+LIMIT 1;
+
+-- name: CreateUserPack :one
+INSERT INTO user_packs(id, user_id, pack_id, amount)
+VALUES($1, $2, $3, $4)
+ON CONFLICT ON CONSTRAINT user_packs_unique
+DO UPDATE SET amount = user_packs.amount + EXCLUDED.amount
+RETURNING *;
