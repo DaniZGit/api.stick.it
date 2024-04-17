@@ -15,6 +15,9 @@ func V1(e *echo.Echo) {
 	// use JWT auth
 	v1.Use(middleware.JwtAuth())
 	v1.GET("/users/:id", handlers.GetUser)
+	v1.GET("/users/:id", handlers.GetUser)
+	v1.GET("/users/:id/packs", handlers.GetUserPacks)
+	v1.GET("/users/:id/stickers", handlers.GetUserStickers)
 
 	v1.POST("/roles", handlers.CreateRole)
 	v1.GET("/roles", handlers.GetRoles)

@@ -27,12 +27,24 @@ type Sticker struct {
 	Rarity *Rarity `json:"rarity"`
 }
 
+type UserSticker struct {
+	ID        uuid.UUID        `json:"id"`
+	UserID uuid.UUID `json:"user_id"`
+	StickerID uuid.UUID `json:"sticker_id"`
+	Amount int `json:"amount"`
+	Sticker Sticker `json:"sticker"`
+}
+
 type StickerResponse struct {
 	Sticker Sticker `json:"sticker"`
 }
 
 type StickersResponse struct {
 	Stickers []Sticker `json:"stickers"`
+}
+
+type UserStickersResponse struct {
+	UserStickers []UserSticker `json:"user_stickers"`
 }
 
 func BuildStickerResponse(stickerRows interface{}, file *database.File, rarity *database.Rarity) any {
@@ -69,6 +81,8 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File, rarity *
 			return castToStickersResponse(value)
 		case []database.GetStickerRaritiesRow:
 			return castToStickerRaritiesResponse(value)
+		case []database.GetUserStickersRow:
+			return castToUserStickersResponse(value)
 	}
 
 	return StickerResponse{}
@@ -164,5 +178,64 @@ func castToStickerRaritiesResponse(stickersRows []database.GetStickerRaritiesRow
 	
 	return StickersResponse{
 		Stickers: stickers,
+	}
+}
+
+func castToUserStickersResponse(rows []database.GetUserStickersRow) UserStickersResponse {
+	if rows == nil || len(rows) <= 0 {
+		return UserStickersResponse{
+			UserStickers: []UserSticker{},
+		}
+	}
+
+	userStickers := []UserSticker{}
+	for _, row := range rows {
+		sticker := Sticker{
+			ID: uuid.NullUUID{UUID: row.ID, Valid: !row.ID.IsNil()},
+			Title: row.StickerTitle,
+			Type: row.StickerType,
+			Top: row.StickerTop,
+			Left: row.StickerLeft,
+			Width: row.StickerWidth,
+			Height: row.StickerHeight,
+			Numerator: row.StickerNumerator,
+			Denominator: row.StickerDenominator,
+			Rotation: row.StickerRotation,
+			PageID: row.StickerPageID,
+			RarityID: row.StickerRarityID,
+			CreatedAt: row.StickerCreatedAt,
+			StickerID: row.StickerStickerID,
+		}
+
+		// add rarity
+		if !row.StickerRarityID.UUID.IsNil() {
+			sticker.Rarity = &Rarity{
+				ID: row.StickerRarityID,
+				Title: row.StickerRarityTitle.String,
+			}
+		}
+
+		// add file
+		if !row.StickerFileID.UUID.IsNil() {
+			sticker.File = &File{
+				ID: row.StickerFileID,
+				Name: row.StickerFileName.String,
+				Url: assetmanager.GetPublicAssetsFileUrl(row.StickerFilePath.String, ""),
+			}
+		}
+
+		userSticker := UserSticker{
+			ID: row.ID,
+			UserID: row.UserID,
+			StickerID: row.StickerID,
+			Amount: int(row.Amount),
+			Sticker: sticker,
+		}
+
+		userStickers = append(userStickers, userSticker)
+	}
+	
+	return UserStickersResponse{
+		UserStickers: userStickers,
 	}
 }

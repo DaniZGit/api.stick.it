@@ -5,6 +5,7 @@ import (
 
 	"github.com/DaniZGit/api.stick.it/internal/assetmanager"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
+	"github.com/gofrs/uuid"
 )
 
 type ShopPacksResponse struct {
@@ -36,7 +37,7 @@ func castToShopPacksResponse(rows []database.GetShopPacksRow) ShopPacksResponse 
 				Price: int(row.Price),
 				Amount: int(row.Amount),
 				AlbumID: row.AlbumID,
-				FileID: row.FileID.UUID,
+				FileID: uuid.NullUUID{UUID: row.FileID.UUID, Valid: !row.FileID.UUID.IsNil()},
 		}
 
 		// add file

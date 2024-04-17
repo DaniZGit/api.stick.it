@@ -14,7 +14,7 @@ type Pack struct {
 	Price int `json:"price"`
 	Amount int `json:"amount"`
 	AlbumID uuid.UUID `json:"album_id"`
-	FileID uuid.UUID `json:"file_id"`
+	FileID uuid.NullUUID `json:"file_id"`
 	File *File `json:"file"`
 	Rarities []PackRarity `json:"rarities"`
 }
@@ -31,6 +31,7 @@ type UserPack struct {
 	UserID uuid.UUID `json:"user_id"`
 	PackID uuid.UUID `json:"pack_id"`
 	Amount int `json:"amount"`
+	Pack Pack `json:"pack"`
 }
 
 type PackResponse struct {
@@ -51,6 +52,10 @@ type PackRarityResponse struct {
 
 type UserPackResponse struct {
 	UserPack UserPack `json:"user_pack"`
+} 
+
+type UserPacksResponse struct {
+	UserPacks []UserPack `json:"user_packs"`
 } 
 
 func BuildPackResponse(packRows interface{}, file *database.File) any {
@@ -93,6 +98,8 @@ func BuildPackResponse(packRows interface{}, file *database.File) any {
 					Amount: int(value.Amount),
 				},
 			}
+		case []database.GetUserPacksRow:
+			return castToUserPacksResponse(value)
 	}
 
 	return AlbumResponse{}
@@ -114,7 +121,7 @@ func castToAlbumPacksResponse(packsRows []database.GetAlbumPacksRow) PacksRespon
 			Price: int(packsRow.Price),
 			Amount: int(packsRow.Amount),
 			AlbumID: packsRow.AlbumID,
-			FileID: packsRow.FileID.UUID,
+			FileID: uuid.NullUUID{UUID: packsRow.FileID.UUID, Valid: !packsRow.FileID.UUID.IsNil()},
 		}
 
 		// add file
@@ -155,5 +162,49 @@ func castToPackRaritiesResponse(packRaritiesRows []database.PackRarity) PackRari
 
 	return PackRaritiesResponse{
 		PackRarities: packRarities,
+	}
+}
+
+func castToUserPacksResponse(rows []database.GetUserPacksRow) UserPacksResponse {
+	if rows == nil || len(rows) <= 0 {
+		return UserPacksResponse{
+			UserPacks: []UserPack{},
+		}
+	}
+
+	userPacks := []UserPack{}
+	for _, row := range rows {
+		pack := Pack{
+			ID: row.PackID,
+			CreatedAt: row.PackCreatedAt,
+			Title: row.PackTitle,
+			Price: int(row.PackPrice),
+			Amount: int(row.PackAmount),
+			AlbumID: row.PackAlbumID,
+			FileID: uuid.NullUUID{UUID: row.PackFileID.UUID, Valid: !row.PackFileID.UUID.IsNil()},
+		}
+
+		// add pack file
+		if !row.PackFileID.UUID.IsNil() {
+			pack.File = &File{
+				ID: row.PackFileID,
+				Name: row.PackFileName.String,
+				Url: assetmanager.GetPublicAssetsFileUrl(row.PackFilePath.String, ""),
+			}
+		}
+
+		userPack := UserPack{
+			ID: row.ID,
+			UserID: row.UserID,
+			PackID: row.PackID,
+			Amount: int(row.Amount),
+			Pack: pack,
+		}
+
+		userPacks = append(userPacks, userPack)
+	}
+	
+	return UserPacksResponse{
+		UserPacks: userPacks,
 	}
 }
