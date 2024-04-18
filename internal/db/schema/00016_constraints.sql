@@ -20,6 +20,8 @@ ALTER TABLE stickers ADD CONSTRAINT stickers_sticker_id_stickers_id FOREIGN KEY 
 -- user_stickers
 ALTER TABLE user_stickers ADD CONSTRAINT user_stickers_user_id_users_id FOREIGN KEY (user_id) REFERENCES users(id);
 ALTER TABLE user_stickers ADD CONSTRAINT user_stickers_sticker_id_stickers_id FOREIGN KEY (sticker_id) REFERENCES stickers(id);
+ALTER TABLE user_stickers ADD CONSTRAINT user_stickers_unique UNIQUE(user_id, sticker_id);
+ALTER TABLE user_stickers ADD CONSTRAINT user_stickers_amount_positive CHECK (amount >= 0);
 
 -- packs
 ALTER TABLE packs ADD CONSTRAINT packs_album_id_albums_id FOREIGN KEY (album_id) REFERENCES albums(id);
@@ -34,6 +36,7 @@ ALTER TABLE pack_rarities ADD CONSTRAINT pack_rarities_rarity_id_rarities_id FOR
 ALTER TABLE user_packs ADD CONSTRAINT user_packs_user_id_users_id FOREIGN KEY (user_id) REFERENCES users(id);
 ALTER TABLE user_packs ADD CONSTRAINT user_packs_pack_id_packs_id FOREIGN KEY (pack_id) REFERENCES packs(id);
 ALTER TABLE user_packs ADD CONSTRAINT user_packs_unique UNIQUE(user_id, pack_id);
+ALTER TABLE user_packs ADD CONSTRAINT user_packs_amount_positive CHECK (amount >= 0);
 
 -- opened_packs
 ALTER TABLE opened_packs ADD CONSTRAINT opened_packs_pack_id_packs_id FOREIGN KEY (pack_id) REFERENCES packs(id);
@@ -64,6 +67,8 @@ ALTER TABLE stickers DROP CONSTRAINT IF EXISTS stickers_page_id_pages_id;
 ALTER TABLE stickers DROP CONSTRAINT IF EXISTS stickers_sticker_id_stickers_id;
 ALTER TABLE user_stickers DROP CONSTRAINT IF EXISTS user_stickers_user_id_users_id;
 ALTER TABLE user_stickers DROP CONSTRAINT IF EXISTS user_stickers_sticker_id_stickers_id;
+ALTER TABLE user_stickers DROP CONSTRAINT IF EXISTS user_stickers_unique;
+ALTER TABLE user_stickers DROP CONSTRAINT IF EXISTS user_stickers_amount_positive;
 ALTER TABLE packs DROP CONSTRAINT IF EXISTS packs_album_id_albums_id;
 ALTER TABLE packs DROP CONSTRAINT IF EXISTS packs_file_id_files_id;
 ALTER TABLE packs DROP CONSTRAINT IF EXISTS packs_rarity_id_rarities_id;
@@ -72,6 +77,7 @@ ALTER TABLE pack_rarities DROP CONSTRAINT IF EXISTS pack_rarities_rarity_id_rari
 ALTER TABLE user_packs DROP CONSTRAINT IF EXISTS user_packs_user_id_users_id;
 ALTER TABLE user_packs DROP CONSTRAINT IF EXISTS user_packs_pack_id_packs_id;
 ALTER TABLE user_packs DROP CONSTRAINT IF EXISTS user_packs_unique;
+ALTER TABLE user_packs DROP CONSTRAINT IF EXISTS user_packs_amount_positive;
 ALTER TABLE opened_packs DROP CONSTRAINT IF EXISTS opened_packs_pack_id_packs_id;
 ALTER TABLE opened_packs DROP CONSTRAINT IF EXISTS opened_packs_user_id_users_id;
 ALTER TABLE opened_pack_stickers DROP CONSTRAINT IF EXISTS opened_pack_stickers_sticker_id_stickers_id;

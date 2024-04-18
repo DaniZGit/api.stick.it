@@ -41,3 +41,22 @@ LEFT JOIN rarities r ON s.rarity_id = r.id
 LEFT JOIN files sf ON s.file_id = sf.id
 WHERE sticker_id = $1 AND rarity_id IS NOT NULL
 ORDER BY s.created_at ASC;
+
+-- name: CreateUserSticker :one
+INSERT INTO user_stickers(id, user_id, sticker_id, amount)
+VALUES($1, $2, $3, $4)
+ON CONFLICT ON CONSTRAINT user_stickers_unique
+DO UPDATE SET amount = user_stickers.amount + EXCLUDED.amount
+RETURNING *;
+
+-- name: GetRandomStickers :many
+SELECT s.*,
+  r.id AS sticker_rarity_id, r.title AS sticker_rarity_title, -- sticker rarity
+  sf.id AS sticker_file_id, sf.name AS sticker_file_name, sf.path AS sticker_file_path -- sticker file
+FROM stickers s
+INNER JOIN pages p ON s.page_id = p.id
+LEFT JOIN rarities r ON s.rarity_id = r.id
+LEFT JOIN files sf ON s.file_id = sf.id
+WHERE p.album_id = $1 AND ( (s.rarity_id = $2) OR ($2 IS NULL AND s.rarity_id IS NULL) )
+ORDER BY random()
+LIMIT $3;

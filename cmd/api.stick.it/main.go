@@ -31,7 +31,7 @@ func main() {
 	defer dbPool.Close()
 
 	// use extended context middleware
-	e.Use(app.ExtendedContext(queries))
+	e.Use(app.ExtendedContext(dbPool, queries))
 
 	// set CORS configuration
 	e.Use(middleware.CORSWithConfig(api_middleware.CORS()))

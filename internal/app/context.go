@@ -6,21 +6,24 @@ import (
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 )
 
 type ApiContext struct{
 	echo.Context
 	Queries *database.Queries
+	DBPool *pgxpool.Pool
 }
 
-func ExtendedContext(q *database.Queries) echo.MiddlewareFunc {
+func ExtendedContext(dbPool *pgxpool.Pool, q *database.Queries) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Create an ApiContext with the database queries
 			cc := &ApiContext{
 				Context: c,
 				Queries: q,
+				DBPool: dbPool,
 			}
 			
 			// Call the next middleware or handler in the chain

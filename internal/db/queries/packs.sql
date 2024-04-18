@@ -53,9 +53,23 @@ FROM packs
 WHERE id = $1
 LIMIT 1;
 
+-- name: GetPackDetailed :one
+SELECT p.*, json_agg(pr.*) as pack_rarities
+FROM packs p
+INNER JOIN pack_rarities pr ON p.id = pr.pack_id 
+WHERE p.id = $1
+GROUP BY p.id
+LIMIT 1;
+
 -- name: CreateUserPack :one
 INSERT INTO user_packs(id, user_id, pack_id, amount)
 VALUES($1, $2, $3, $4)
 ON CONFLICT ON CONSTRAINT user_packs_unique
 DO UPDATE SET amount = user_packs.amount + EXCLUDED.amount
+RETURNING *;
+
+-- name: DecrementUserPack :one
+UPDATE user_packs
+SET amount = amount - $1
+WHERE user_id = $2 AND pack_id = $3
 RETURNING *;

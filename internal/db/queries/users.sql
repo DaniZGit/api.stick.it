@@ -39,6 +39,12 @@ INNER JOIN packs p on up.pack_id = p.id
 LEFT JOIN files pf on p.file_id = pf.id
 WHERE up.user_id = $1 AND p.album_id = $2 AND up.amount > 0;
 
+-- name: GetUserPack :one
+SELECT up.*
+FROM user_packs up
+WHERE up.user_id = $1 AND up.pack_id = $2
+LIMIT 1;
+
 -- name: GetUserStickers :many
 SELECT
   us.*,

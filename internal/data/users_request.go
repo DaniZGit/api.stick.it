@@ -22,3 +22,10 @@ type UserStickersGetRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 	AlbumID uuid.UUID `query:"album_id" validate:"required"`
 }
+
+type UserPackOpenRequest struct {
+	ID uuid.UUID `param:"id" validate:"required"`
+	AlbumID uuid.UUID `json:"album_id" validate:"required"`
+	PackID uuid.UUID `json:"pack_id" validate:"required"`
+	OpenAll bool `json:"open_all"`
+}
