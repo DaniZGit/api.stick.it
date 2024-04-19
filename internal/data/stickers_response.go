@@ -83,8 +83,6 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File, rarity *
 			return castToStickerRaritiesResponse(value)
 		case []database.GetUserStickersRow:
 			return castToUserStickersResponse(value)
-		case []database.GetRandomStickersRow:
-			return castToRandomUserStickersResponse(value)
 	}
 
 	return StickerResponse{}
@@ -239,55 +237,5 @@ func castToUserStickersResponse(rows []database.GetUserStickersRow) UserStickers
 	
 	return UserStickersResponse{
 		UserStickers: userStickers,
-	}
-}
-
-func castToRandomUserStickersResponse(rows []database.GetRandomStickersRow) StickersResponse {
-	if rows == nil || len(rows) <= 0 {
-		return StickersResponse{
-			Stickers: []Sticker{},
-		}
-	}
-
-	stickers := []Sticker{}
-	for _, row := range rows {
-		sticker := Sticker{
-			ID: uuid.NullUUID{UUID: row.ID, Valid: !row.ID.IsNil()},
-			Title: row.Title,
-			Type: row.Type,
-			Top: row.Top,
-			Left: row.Left,
-			Width: row.Width,
-			Height: row.Height,
-			Numerator: row.Numerator,
-			Denominator: row.Denominator,
-			Rotation: row.Rotation,
-			PageID: row.PageID,
-			RarityID: row.RarityID,
-			CreatedAt: row.CreatedAt,
-		}
-
-		// add file
-		if !row.StickerFileID.UUID.IsNil() {
-			sticker.File = &File{
-				ID: row.StickerFileID,
-				Name: row.StickerFileName.String,
-				Url: assetmanager.GetPublicAssetsFileUrl(row.StickerFilePath.String, ""),
-			}
-		}
-
-		// add rarity
-		if !row.StickerRarityID.UUID.IsNil() {
-			sticker.Rarity = &Rarity{
-				ID: row.StickerRarityID,
-				Title: row.StickerRarityTitle.String,
-			}
-		}
-
-		stickers = append(stickers, sticker)
-	}
-	
-	return StickersResponse{
-		Stickers: stickers,
 	}
 }

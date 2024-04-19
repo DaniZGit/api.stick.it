@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/DaniZGit/api.stick.it/internal/app"
+	"github.com/DaniZGit/api.stick.it/internal/assetmanager"
 	"github.com/DaniZGit/api.stick.it/internal/auth"
 	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
@@ -165,8 +166,9 @@ func OpenUserPacks(c echo.Context) error  {
 	}
 
 	// add sticker to user in db
+	mappedUserStickers := make(map[uuid.UUID]data.UserSticker)
 	for _, sticker := range stickers {
-		_, err := qtx.CreateUserSticker(ctx.Request().Context(), database.CreateUserStickerParams{
+		userSticker, err := qtx.CreateUserSticker(ctx.Request().Context(), database.CreateUserStickerParams{
 			ID: uuid.Must(uuid.NewV4()),
 			UserID: u.ID,
 			StickerID: sticker.ID,
@@ -174,6 +176,38 @@ func OpenUserPacks(c echo.Context) error  {
 		})
 		if err != nil {
 			return ctx.ErrorResponse(http.StatusInternalServerError, err)
+		}
+
+		mappedUserStickers[sticker.ID] = data.UserSticker{
+			ID: userSticker.ID,
+			UserID: userSticker.UserID,
+			StickerID: userSticker.StickerID,
+			Amount: int(userSticker.Amount),
+			Sticker: data.Sticker{
+				ID: uuid.NullUUID{UUID: sticker.ID, Valid: !sticker.ID.IsNil()},
+				CreatedAt: sticker.CreatedAt,
+				Title: sticker.Title,
+				Type: sticker.Type,
+				Top: sticker.Top,
+				Left: sticker.Left,
+				Width: sticker.Width,
+				Height: sticker.Height,
+				Numerator: sticker.Numerator,
+				Denominator: sticker.Denominator,
+				Rotation: sticker.Rotation,
+				PageID: sticker.PageID,
+				RarityID: sticker.RarityID,
+				FileID: sticker.FileID,
+				File: &data.File{
+					ID: uuid.NullUUID{UUID: sticker.StickerFileID.UUID, Valid: !sticker.StickerFileID.UUID.IsNil()},
+					Name: sticker.StickerFileName.String,
+					Url: assetmanager.GetPublicAssetsFileUrl(sticker.StickerFilePath.String, ""),
+				},
+				Rarity: &data.Rarity{
+					ID: uuid.NullUUID{UUID: sticker.StickerRarityID.UUID, Valid: !sticker.StickerRarityID.UUID.IsNil()},
+					Title: sticker.StickerRarityTitle.String,
+				},
+			},
 		}
 	}
 
@@ -187,8 +221,14 @@ func OpenUserPacks(c echo.Context) error  {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
+	// mapped values to slice
+	userStickers := make([]data.UserSticker, 0, len(mappedUserStickers))
+	for  _, value := range mappedUserStickers {
+		userStickers = append(userStickers, value)
+	}
+
 	// randomize stickers
-	rand.Shuffle(len(stickers), func(i, j int) { stickers[i], stickers[j] = stickers[j], stickers[i] })
+	rand.Shuffle(len(userStickers), func(i, j int) { userStickers[i], userStickers[j] = userStickers[j], userStickers[i] })
 
 	// commit transaction
 	err = tx.Commit(ctx.Request().Context())
@@ -196,5 +236,7 @@ func OpenUserPacks(c echo.Context) error  {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusOK, data.BuildStickerResponse(stickers, &database.File{}, &database.Rarity{}))
+	return ctx.JSON(http.StatusOK, data.UserStickersResponse{
+		UserStickers: userStickers,
+	})
 }
