@@ -10,7 +10,7 @@ SELECT
   s.id AS sticker_id, s.created_at AS sticker_created_at, s.title AS sticker_title, s.type AS sticker_type, 
   s.top AS sticker_top, s.left AS sticker_left, s.width AS sticker_width, s.height AS sticker_height, 
   s.numerator AS sticker_numerator, s.denominator AS sticker_denominator,
-  s.rotation AS sticker_rotation, s.rarity_id AS sticker_rarity_id, -- sticker
+  s.rotation AS sticker_rotation, s.rarity_id AS sticker_rarity_id, s.sticker_id AS sticker_sticker_id, -- sticker
   sf.id AS sticker_file_id, sf.name AS sticker_file_name, sf.path AS sticker_file_path -- sticker file
 FROM pages AS p
 LEFT JOIN files AS pf ON p.file_id = pf.id
@@ -38,3 +38,11 @@ RETURNING *;
 DELETE FROM pages
 WHERE id = $1
 RETURNING *;
+
+-- name: GetAlbumPages :many
+SELECT
+  p.*,
+  pf.id AS page_file_id, pf.name AS page_file_name, pf.path AS page_file_path -- album file
+FROM pages p
+LEFT JOIN files pf ON p.file_id = pf.id
+WHERE p.album_id = $1 AND p.sort_order >= $2 AND p.sort_order <= $3;

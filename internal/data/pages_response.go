@@ -93,6 +93,8 @@ func castToPageResponse(pageRows []database.GetPageRow) PageResponse {
 				},
 				PageID: pageRow.ID,
 				RarityID: pageRow.StickerRarityID,
+				StickerID: pageRow.StickerStickerID,
+				FileID: pageRow.StickerFileID,
 			}
 
 			page.Stickers = append(page.Stickers, sticker)

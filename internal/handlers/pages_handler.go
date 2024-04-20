@@ -132,3 +132,40 @@ func DeletePage(c echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, data.BuildPageResponse(page, &database.File{}))
 }
+
+///////////////////////////////
+/* GET - "/albums/:id/pages" */
+///////////////////////////////
+func GetAlbumPages(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	a := new(data.AlbumPagesGetRequest)
+	if err := ctx.Bind(a); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	from := min(0, a.From)
+	albumPages, err := ctx.Queries.GetAlbumPages(ctx.Request().Context(), database.GetAlbumPagesParams{
+		AlbumID: a.AlbumID,
+		SortOrder: int32(from),
+		SortOrder_2: int32(a.To),
+	})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	pages := make([]data.Page, 0, len(albumPages))
+	for _, p := range albumPages {
+		page, err := ctx.Queries.GetPage(ctx.Request().Context(), p.ID)
+		if err != nil {
+			return ctx.ErrorResponse(http.StatusNotImplemented, err)
+		}
+
+		pageResponse := data.BuildPageResponse(page, &database.File{}).(data.PageResponse)
+		pages = append(pages, pageResponse.Page)
+	}
+
+	return ctx.JSON(http.StatusOK, data.PagesResponse{
+		Pages: pages,
+	})
+}

@@ -23,10 +23,6 @@ type PackDeleteRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 }
 
-type AlbumPacksGetRequest struct {
-	AlbumID uuid.UUID `param:"id" validate:"required"`
-}
-
 type PackRaritiesGetRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 }

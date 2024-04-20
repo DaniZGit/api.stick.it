@@ -25,3 +25,13 @@ type AlbumUpdateRequest struct {
 type AlbumDeleteRequest struct {
 	ID string `param:"id" validate:"required"`
 }
+
+type AlbumPacksGetRequest struct {
+	AlbumID uuid.UUID `param:"id" validate:"required"`
+}
+
+type AlbumPagesGetRequest struct {
+	AlbumID uuid.UUID `param:"id" validate:"required"`
+	From int `query:"from" validate:"required"`
+	To int `query:"to" validate:"required"`
+}
