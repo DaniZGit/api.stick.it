@@ -166,7 +166,7 @@ func OpenUserPacks(c echo.Context) error  {
 	}
 
 	// add sticker to user in db
-	mappedUserStickers := make(map[uuid.UUID]data.UserSticker)
+	userStickers := []data.UserSticker{}
 	for _, sticker := range stickers {
 		userSticker, err := qtx.CreateUserSticker(ctx.Request().Context(), database.CreateUserStickerParams{
 			ID: uuid.Must(uuid.NewV4()),
@@ -178,7 +178,7 @@ func OpenUserPacks(c echo.Context) error  {
 			return ctx.ErrorResponse(http.StatusInternalServerError, err)
 		}
 
-		mappedUserStickers[sticker.ID] = data.UserSticker{
+		userStickers = append(userStickers, data.UserSticker{
 			ID: userSticker.ID,
 			UserID: userSticker.UserID,
 			StickerID: userSticker.StickerID,
@@ -208,7 +208,7 @@ func OpenUserPacks(c echo.Context) error  {
 					Title: sticker.StickerRarityTitle.String,
 				},
 			},
-		}
+		})
 	}
 
 	// decrement user pack's amount
@@ -219,12 +219,6 @@ func OpenUserPacks(c echo.Context) error  {
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
-	}
-
-	// mapped values to slice
-	userStickers := make([]data.UserSticker, 0, len(mappedUserStickers))
-	for  _, value := range mappedUserStickers {
-		userStickers = append(userStickers, value)
 	}
 
 	// randomize stickers
