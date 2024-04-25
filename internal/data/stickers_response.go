@@ -191,7 +191,7 @@ func castToUserStickersResponse(rows []database.GetUserStickersRow) UserStickers
 	userStickers := []UserSticker{}
 	for _, row := range rows {
 		sticker := Sticker{
-			ID: uuid.NullUUID{UUID: row.ID, Valid: !row.ID.IsNil()},
+			ID: uuid.NullUUID{UUID: row.StickerID, Valid: !row.StickerID.IsNil()},
 			Title: row.StickerTitle,
 			Type: row.StickerType,
 			Top: row.StickerTop,
