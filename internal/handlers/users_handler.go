@@ -173,6 +173,7 @@ func OpenUserPacks(c echo.Context) error  {
 			UserID: u.ID,
 			StickerID: sticker.ID,
 			Amount: 1,
+			Sticked: false,
 		})
 		if err != nil {
 			return ctx.ErrorResponse(http.StatusInternalServerError, err)
@@ -183,6 +184,7 @@ func OpenUserPacks(c echo.Context) error  {
 			UserID: userSticker.UserID,
 			StickerID: userSticker.StickerID,
 			Amount: int(userSticker.Amount),
+			Sticked: userSticker.Sticked,
 			Sticker: data.Sticker{
 				ID: uuid.NullUUID{UUID: sticker.ID, Valid: !sticker.ID.IsNil()},
 				CreatedAt: sticker.CreatedAt,
@@ -233,4 +235,27 @@ func OpenUserPacks(c echo.Context) error  {
 	return ctx.JSON(http.StatusOK, data.UserStickersResponse{
 		UserStickers: userStickers,
 	})
+}
+
+func StickUserSticker(c echo.Context) error  {
+	ctx := c.(*app.ApiContext)
+
+	u := new(data.StickUserStickerRequest)
+	if err := ctx.Bind(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	userSticker, err := ctx.Queries.StickUserSticker(ctx.Request().Context(), database.StickUserStickerParams{
+		UserID: u.ID,
+		StickerID: u.StickerID,
+	})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+	
+	return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userSticker, &database.File{}, &database.Rarity{}))
 }

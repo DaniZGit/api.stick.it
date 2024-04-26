@@ -43,10 +43,17 @@ WHERE sticker_id = $1 AND rarity_id IS NOT NULL
 ORDER BY s.created_at ASC;
 
 -- name: CreateUserSticker :one
-INSERT INTO user_stickers(id, user_id, sticker_id, amount)
-VALUES($1, $2, $3, $4)
+INSERT INTO user_stickers(id, user_id, sticker_id, amount, sticked)
+VALUES($1, $2, $3, $4, $5)
 ON CONFLICT ON CONSTRAINT user_stickers_unique
 DO UPDATE SET amount = user_stickers.amount + EXCLUDED.amount
+RETURNING *;
+
+-- name: StickUserSticker :one
+UPDATE user_stickers 
+SET sticked = true,
+    amount = amount - 1
+WHERE user_id = $1 AND sticker_id = $2 AND amount > 0 AND sticked = false
 RETURNING *;
 
 -- name: GetRandomStickers :many

@@ -32,6 +32,7 @@ type UserSticker struct {
 	UserID uuid.UUID `json:"user_id"`
 	StickerID uuid.UUID `json:"sticker_id"`
 	Amount int `json:"amount"`
+	Sticked bool `json:"sticked"`
 	Sticker Sticker `json:"sticker"`
 }
 
@@ -41,6 +42,10 @@ type StickerResponse struct {
 
 type StickersResponse struct {
 	Stickers []Sticker `json:"stickers"`
+}
+
+type UserStickerResponse struct {
+	UserSticker UserSticker `json:"user_sticker"`
 }
 
 type UserStickersResponse struct {
@@ -81,6 +86,17 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File, rarity *
 			return castToStickersResponse(value)
 		case []database.GetStickerRaritiesRow:
 			return castToStickerRaritiesResponse(value)
+		case database.UserSticker: 
+			return UserStickerResponse{
+				UserSticker: UserSticker{
+					ID: value.ID,
+					UserID: value.UserID,
+					StickerID: value.StickerID,
+					Amount: int(value.Amount),
+					Sticked: value.Sticked,
+					Sticker: Sticker{},
+				},
+			}
 		case []database.GetUserStickersRow:
 			return castToUserStickersResponse(value)
 	}
@@ -229,6 +245,7 @@ func castToUserStickersResponse(rows []database.GetUserStickersRow) UserStickers
 			UserID: row.UserID,
 			StickerID: row.StickerID,
 			Amount: int(row.Amount),
+			Sticked: row.Sticked,
 			Sticker: sticker,
 		}
 

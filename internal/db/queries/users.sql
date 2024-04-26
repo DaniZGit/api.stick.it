@@ -59,5 +59,5 @@ INNER JOIN stickers s ON us.sticker_id = s.id
 LEFT JOIN rarities r ON s.rarity_id = r.id
 LEFT JOIN files sf ON s.file_id = sf.id
 INNER JOIN pages p ON s.page_id = p.id
-WHERE us.user_id = $1 AND p.album_id = $2 AND us.amount > 0
+WHERE us.user_id = $1 AND p.album_id = $2 AND (us.amount > 0 OR us.sticked = true)
 ORDER BY us.id DESC;
