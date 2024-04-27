@@ -69,16 +69,30 @@ func BuyPack(c echo.Context) error {
 func BuyBundle(c echo.Context) error {
 	ctx := c.(*app.ApiContext)
 
+	t := new(data.TransactionBundleBuyRequest)
+	if err := ctx.Bind(t); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(t); err != nil {
+		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
+	}
+
+	bundle, err := ctx.Queries.GetBundle(ctx.Request().Context(), t.BundleID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
 	claims := auth.GetClaimsFromToken(*ctx)
 	user, err := ctx.Queries.IncrementUserTokens(ctx.Request().Context(), database.IncrementUserTokensParams{
 		ID: claims.UserID,
-		Tokens: 1000,
+		Tokens: int64(bundle.Tokens),
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{
-		"user": user,
+		"tokens": user.Tokens,
 	})
 }

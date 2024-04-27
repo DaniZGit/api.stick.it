@@ -21,3 +21,17 @@ func GetShopPacks(c echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, data.BuildShopResponse(packs))
 }
+
+///////////////////////////
+/* GET - "/shop/bundles" */
+///////////////////////////
+func GetShopBundles(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	bundles, err := ctx.Queries.GetShopBundles(ctx.Request().Context())
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	return ctx.JSON(http.StatusOK, data.BuildShopResponse(bundles))
+}

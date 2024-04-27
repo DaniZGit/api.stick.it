@@ -8,6 +8,12 @@ LEFT JOIN files bf ON b.file_id = bf.id
 ORDER BY b.price ASC
 LIMIT $1 OFFSET $2;
 
+-- name: GetBundle :one
+SELECT *
+FROM bundles
+WHERE id = $1
+LIMIT 1;
+
 -- name: CreateBundle :one
 INSERT INTO bundles(id, title, price, tokens, bonus, file_id)
 VALUES ($1, $2, $3, $4, $5, $6)

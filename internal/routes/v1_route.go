@@ -62,6 +62,7 @@ func V1(e *echo.Echo) {
 	v1.DELETE("/bundles/:id", handlers.DeleteBundle)
 
 	v1.GET("/shop/packs", handlers.GetShopPacks)
+	v1.GET("/shop/bundles", handlers.GetShopBundles)
 
 	// transactions
 	v1.POST("/transactions/pack", handlers.BuyPack)
