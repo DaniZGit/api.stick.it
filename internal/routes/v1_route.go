@@ -56,6 +56,11 @@ func V1(e *echo.Echo) {
 	v1.PUT("/pack-rarities/:id", handlers.UpdatePackRarity)
 	v1.DELETE("/pack-rarities/:id", handlers.DeletePackRarity)
 
+	v1.GET("/bundles", handlers.GetBundles)
+	v1.POST("/bundles", handlers.CreateBundle)
+	v1.PUT("/bundles/:id", handlers.UpdateBundle)
+	v1.DELETE("/bundles/:id", handlers.DeleteBundle)
+
 	v1.GET("/shop/packs", handlers.GetShopPacks)
 
 	// transactions
