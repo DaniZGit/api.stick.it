@@ -12,6 +12,7 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.18.0
+	github.com/stripe/stripe-go/v78 v78.4.0
 	golang.org/x/crypto v0.18.0
 )
 

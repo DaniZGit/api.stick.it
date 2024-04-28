@@ -1,10 +1,16 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/DaniZGit/api.stick.it/internal/handlers"
 	"github.com/DaniZGit/api.stick.it/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
+
+func Global(e *echo.Echo) {
+	e.GET("/ping", func(c echo.Context) error {return c.JSON(http.StatusOK, "pong")})
+}
 
 func V1(e *echo.Echo) {
 	v1 := e.Group("/v1")
@@ -65,6 +71,7 @@ func V1(e *echo.Echo) {
 	v1.GET("/shop/bundles", handlers.GetShopBundles)
 
 	// transactions
+	v1.POST("/transactions/create-payment-intent", handlers.CreatePaymentIntent)
 	v1.POST("/transactions/pack", handlers.BuyPack)
 	v1.POST("/transactions/bundle", handlers.BuyBundle)
 }

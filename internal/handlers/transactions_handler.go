@@ -10,7 +10,41 @@ import (
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/gofrs/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/stripe/stripe-go/v78"
+	"github.com/stripe/stripe-go/v78/paymentintent"
 )
+
+//////////////////////////////////////////////////
+/* POST - "/transactions/create-payment-intent" */
+//////////////////////////////////////////////////
+func CreatePaymentIntent(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	t := new(data.TransactionCreatePaymentIntentRequest)
+	if err := ctx.Bind(t); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(t); err != nil {
+		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
+	}
+
+	params := stripe.PaymentIntentParams{
+		Amount: t.Amount,
+		Currency: t.Currency,
+		PaymentMethodTypes: stripe.StringSlice([]string{
+			*t.PaymentMethodType,
+		}),
+	}
+	paymentIntent, err := paymentintent.New(&params)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"client_secret": paymentIntent.ClientSecret,
+	})
+}
 
 /////////////////////////////////////
 /* POST - "/transactions/pack/:id" */

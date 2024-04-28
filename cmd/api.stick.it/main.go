@@ -11,6 +11,7 @@ import (
 	api_middleware "github.com/DaniZGit/api.stick.it/internal/middleware"
 	"github.com/DaniZGit/api.stick.it/internal/routes"
 	"github.com/joho/godotenv"
+	"github.com/stripe/stripe-go/v78"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -42,10 +43,14 @@ func main() {
 	}
 
 	// add routes/endpoints
+	routes.Global(e)
 	routes.V1(e)
 
 	// expose assets folder
 	e.Static("/assets", "assets/public")
+
+	// add stripe key
+	stripe.Key = environment.StripeSecret()
 
 	// initialize default roles and users on launch
 	seed.SeedRoles(queries)

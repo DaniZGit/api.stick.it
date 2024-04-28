@@ -27,6 +27,11 @@ func JwtSecret() string {
 	return val
 }
 
+func StripeSecret() string {
+	val := readEnv("STRIPE_SECRET_KEY")
+	return val
+}
+
 type DbCredentialsType struct {
 	Host string;
 	Port string;
