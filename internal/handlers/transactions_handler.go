@@ -120,7 +120,7 @@ func BuyBundle(c echo.Context) error {
 	claims := auth.GetClaimsFromToken(*ctx)
 	user, err := ctx.Queries.IncrementUserTokens(ctx.Request().Context(), database.IncrementUserTokensParams{
 		ID: claims.UserID,
-		Tokens: int64(bundle.Tokens),
+		Tokens: int64(bundle.Tokens + bundle.Bonus),
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
