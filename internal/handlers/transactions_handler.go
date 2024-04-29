@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/DaniZGit/api.stick.it/environment"
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	"github.com/DaniZGit/api.stick.it/internal/auth"
 	"github.com/DaniZGit/api.stick.it/internal/data"
@@ -13,6 +14,19 @@ import (
 	"github.com/stripe/stripe-go/v78"
 	"github.com/stripe/stripe-go/v78/paymentintent"
 )
+
+///////////////////////////////////
+/* POST - "/transactions/config" */
+///////////////////////////////////
+func GetStripeConfig(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+	
+	key := environment.StripePublishableKey()
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"publishable_key": key,
+	})
+}
 
 //////////////////////////////////////////////////
 /* POST - "/transactions/create-payment-intent" */
@@ -41,7 +55,7 @@ func CreatePaymentIntent(c echo.Context) error {
 
 	params := stripe.PaymentIntentParams{
 		Amount: stripe.Int64(int64(price.Float64 * 100)),
-		Currency: t.Currency,
+		Currency: stripe.String(string(stripe.CurrencyEUR)),
 		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
 			Enabled: stripe.Bool(true),
 		},

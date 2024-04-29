@@ -32,6 +32,11 @@ func StripeSecret() string {
 	return val
 }
 
+func StripePublishableKey() string {
+	val := readEnv("STRIPE_PUBLISHABLE_KEY")
+	return val
+}
+
 type DbCredentialsType struct {
 	Host string;
 	Port string;

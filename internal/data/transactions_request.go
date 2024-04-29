@@ -4,7 +4,6 @@ import "github.com/gofrs/uuid"
 
 type TransactionCreatePaymentIntentRequest struct {
 	BundleID uuid.UUID `json:"bundle_id" form:"bundle_id" validate:"required"`
-	Currency *string `json:"currency" validate:"required"`
 }
 
 type TransactionPackBuyRequest struct {

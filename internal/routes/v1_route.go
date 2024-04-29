@@ -71,6 +71,7 @@ func V1(e *echo.Echo) {
 	v1.GET("/shop/bundles", handlers.GetShopBundles)
 
 	// transactions
+	v1.GET("/transactions/config", handlers.GetStripeConfig)
 	v1.POST("/transactions/create-payment-intent", handlers.CreatePaymentIntent)
 	v1.POST("/transactions/pack", handlers.BuyPack)
 	v1.POST("/transactions/bundle", handlers.BuyBundle)
