@@ -29,12 +29,22 @@ func CreatePaymentIntent(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusUnprocessableEntity, err)
 	}
 
+	bundle, err := ctx.Queries.GetBundle(ctx.Request().Context(), t.BundleID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
+	price, err := bundle.Price.Float64Value()
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
 	params := stripe.PaymentIntentParams{
-		Amount: t.Amount,
+		Amount: stripe.Int64(int64(price.Float64 * 100)),
 		Currency: t.Currency,
-		PaymentMethodTypes: stripe.StringSlice([]string{
-			*t.PaymentMethodType,
-		}),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled: stripe.Bool(true),
+		},
 	}
 	paymentIntent, err := paymentintent.New(&params)
 	if err != nil {
