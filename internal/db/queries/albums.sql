@@ -20,8 +20,8 @@ WHERE a.id = $1
 ORDER BY p.sort_order ASC;
 
 -- name: CreateAlbum :one
-INSERT INTO albums(id, title, date_from, date_to, featured, file_id)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO albums(id, title, date_from, date_to, featured, page_numerator, page_denominator, file_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
 -- name: UpdateAlbum :one
@@ -30,7 +30,9 @@ UPDATE albums SET
   date_from = $3,
   date_to = $4,
   featured = $5,
-  file_id = $6
+  page_numerator = $6,
+  page_denominator = $7,
+  file_id = $8
 WHERE id = $1
 RETURNING *;
 

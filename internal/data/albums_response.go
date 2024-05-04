@@ -14,6 +14,8 @@ type Album struct {
 	DateFrom string `json:"date_from"`
 	DateTo string `json:"date_to"`
 	Featured bool `json:"featured"`
+	PageNumerator int `json:"page_numerator"`
+	PageDenominator int `json:"page_denominator"`
 	File *File `json:"file"`
 	Pages []Page `json:"pages"`
 }
@@ -37,6 +39,8 @@ func BuildAlbumResponse(albumRows interface{}, file *database.File) any {
 					DateFrom: value.DateFrom.Time.String(),
 					DateTo: value.DateTo.Time.String(),
 					Featured: value.Featured.Bool,
+					PageNumerator: int(value.PageNumerator),
+					PageDenominator: int(value.PageDenominator),
 					File: &File{
 						ID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 						Name: file.Name,
@@ -68,6 +72,8 @@ func castToAlbumResponse(albumRows []database.GetAlbumRow) AlbumResponse {
 		DateFrom: albumRows[0].DateFrom.Time.String(),
 		DateTo: albumRows[0].DateTo.Time.String(),
 		Featured: albumRows[0].Featured.Bool,
+		PageNumerator: int(albumRows[0].PageNumerator),
+		PageDenominator: int(albumRows[0].PageDenominator),
 	}
 
 	// add file
@@ -120,6 +126,8 @@ func castToAlbumsResponse(albumsRows []database.GetAlbumsRow) AlbumsResponse {
 			DateFrom: albumsRow.DateFrom.Time.String(),
 			DateTo: albumsRow.DateTo.Time.String(),
 			Featured: albumsRow.Featured.Bool,
+			PageNumerator: int(albumsRow.PageNumerator),
+			PageDenominator: int(albumsRow.PageDenominator),
 		}
 
 		// add file

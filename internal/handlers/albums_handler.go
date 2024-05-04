@@ -92,6 +92,8 @@ func CreateAlbum(c echo.Context) error {
 		DateFrom: pgtype.Timestamp{Time: utils.StringToTime(a.DateFrom, true), Valid: true},
 		DateTo: pgtype.Timestamp{Time: utils.StringToTime(a.DateTo, false), Valid: true},
 		Featured: pgtype.Bool{Bool: a.Featured, Valid: true},
+		PageNumerator: int32(a.PageNumerator),
+		PageDenominator: int32(a.PageDenominator),
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
 	if err != nil {
@@ -140,6 +142,8 @@ func UpdateAlbum(c echo.Context) error {
 		DateFrom: utils.StringToPgTime(a.DateFrom, false),
 		DateTo: utils.StringToPgTime(a.DateTo, false),
 		Featured: pgtype.Bool{Bool: a.Featured, Valid: true},
+		PageNumerator: int32(a.PageNumerator),
+		PageDenominator: int32(a.PageDenominator),
 		FileID: uuid.NullUUID{UUID: file.ID, Valid: !file.ID.IsNil()},
 	})
 	if err != nil {

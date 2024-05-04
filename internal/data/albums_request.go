@@ -7,6 +7,8 @@ type AlbumCreateRequest struct {
 	DateFrom string `json:"date_from" form:"date_from" validate:"required"`
 	DateTo string `json:"date_to" form:"date_to" validate:"required"`
 	Featured bool `json:"featured" form:"featured"`
+	PageNumerator int `json:"page_numerator" form:"page_numerator" validate:"required"` 
+	PageDenominator int `json:"page_denominator" form:"page_denominator" validate:"required"` 
 }
 
 type AlbumGetRequest struct {
@@ -19,6 +21,8 @@ type AlbumUpdateRequest struct {
 	DateFrom string `json:"date_from" form:"date_from"`
 	DateTo string `json:"date_to" form:"date_to"`
 	Featured bool `json:"featured" form:"featured"`
+	PageNumerator int `json:"page_numerator" form:"page_numerator" validate:"required"` 
+	PageDenominator int `json:"page_denominator" form:"page_denominator" validate:"required"` 
 	FileID string `json:"file_id" form:"file_id"`
 }
 

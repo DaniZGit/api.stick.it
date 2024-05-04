@@ -7,6 +7,8 @@ CREATE TABLE albums (
   date_from TIMESTAMP NOT NULL,
   date_to TIMESTAMP,
   featured BOOLEAN,
+  page_numerator INT NOT NULL,
+  page_denominator INT NOT NULL, 
   file_id UUID
 );
 
