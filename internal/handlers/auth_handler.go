@@ -55,16 +55,7 @@ func UserRegister(c echo.Context) error {
 	// return user with token
 	return ctx.JSON(
 		http.StatusCreated,
-		data.UserResponse{
-			ID: user.ID,
-			CreatedAt: user.CreatedAt,
-			Username: user.Username,
-			Email: user.Email,
-			Tokens: int(user.Tokens),
-			Token: t,
-			AvailableFreePacks: int(user.AvailableFreePacks),
-			LastFreePackObtainDate: user.LastFreePackObtainDate,
-		},
+		data.CastToUserResponse(user, t),
 	)
 }
 
@@ -106,15 +97,6 @@ func UserLogin(c echo.Context) error {
 	// return user with token
 	return ctx.JSON(
 		http.StatusCreated,
-		data.UserResponse{
-			ID: user.ID,
-			CreatedAt: user.CreatedAt,
-			Username: user.Username,
-			Email: user.Email,
-			Tokens: int(user.Tokens),
-			Token: t,
-			AvailableFreePacks: int(user.AvailableFreePacks),
-			LastFreePackObtainDate: user.LastFreePackObtainDate,
-		},
+		data.CastToUserResponse(user, t),
 	)
 }

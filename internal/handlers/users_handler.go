@@ -11,6 +11,7 @@ import (
 	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,10 +23,13 @@ func GetUser(c echo.Context) error {
 
 	claims := auth.GetClaimsFromToken(*ctx)
 
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"user_id": claims.UserID,
-		"role_id": claims.RoleID,
-	})
+	user, err := ctx.Queries.GetUserByID(ctx.Request().Context(), claims.UserID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+	token := ctx.Get("user").(*jwt.Token)
+
+	return ctx.JSON(http.StatusOK, data.CastToUserResponse(user, token.Raw))
 }
 
 func GetUserPacks(c echo.Context) error {
@@ -294,15 +298,7 @@ func ClaimUserFreePack(c echo.Context) error  {
 	}
 	
 	return ctx.JSON(http.StatusOK, echo.Map{
-		"user": data.UserResponse{
-			ID: user.ID,
-			CreatedAt: user.CreatedAt,
-			Username: user.Username,
-			Email: user.Email,
-			Tokens: int(user.Tokens),
-			AvailableFreePacks: int(user.AvailableFreePacks),
-			LastFreePackObtainDate: user.LastFreePackObtainDate,
-		},
+		"user": data.CastToUserResponse(user, claims.ID),
 		"pack": data.BuildPackResponse(pack, &database.File{}),
 	})
 }
