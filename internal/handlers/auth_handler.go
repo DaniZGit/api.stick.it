@@ -62,6 +62,8 @@ func UserRegister(c echo.Context) error {
 			Email: user.Email,
 			Tokens: int(user.Tokens),
 			Token: t,
+			AvailableFreePacks: int(user.AvailableFreePacks),
+			LastFreePackObtainDate: user.LastFreePackObtainDate,
 		},
 	)
 }
@@ -111,6 +113,8 @@ func UserLogin(c echo.Context) error {
 			Email: user.Email,
 			Tokens: int(user.Tokens),
 			Token: t,
+			AvailableFreePacks: int(user.AvailableFreePacks),
+			LastFreePackObtainDate: user.LastFreePackObtainDate,
 		},
 	)
 }

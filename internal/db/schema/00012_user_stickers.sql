@@ -4,7 +4,7 @@ CREATE TABLE user_stickers (
 	user_id UUID NOT NULL,
 	sticker_id UUID NOT NULL,
 	amount INTEGER NOT NULL,
-	sticked BOOLEAN NOT NULL DEFAULT 0
+	sticked BOOLEAN NOT NULL DEFAULT false
 );
 
 -- +goose Down

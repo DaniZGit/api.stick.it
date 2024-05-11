@@ -2,11 +2,13 @@
 SELECT 
   p.*, -- pack
   pf.id AS pack_file_id, pf.name AS pack_file_name, pf.path AS pack_file_path, -- pack file
+  a.id AS album_album_id, a.title AS album_title,
   json_agg(pr.*) as pack_rarities
 FROM packs AS p
 LEFT JOIN files pf ON p.file_id = pf.id
+INNER JOIN albums a ON a.id = p.album_id
 INNER JOIN pack_rarities pr ON p.id = pr.pack_id
-GROUP BY p.id, pf.id;
+GROUP BY p.id, pf.id, a.id;
 
 -- name: GetShopBundles :many
 SELECT 

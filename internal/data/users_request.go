@@ -34,3 +34,7 @@ type StickUserStickerRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 	StickerID uuid.UUID `json:"sticker_id" validate:"required"`
 }
+
+type ClaimUserFreePackRequest struct {
+	PackID uuid.UUID `json:"pack_id" validate:"required"`
+}

@@ -10,6 +10,7 @@ import (
 	"github.com/DaniZGit/api.stick.it/internal/db"
 	api_middleware "github.com/DaniZGit/api.stick.it/internal/middleware"
 	"github.com/DaniZGit/api.stick.it/internal/routes"
+	"github.com/DaniZGit/api.stick.it/internal/tasks"
 	"github.com/joho/godotenv"
 	"github.com/stripe/stripe-go/v78"
 
@@ -55,6 +56,9 @@ func main() {
 	// initialize default roles and users on launch
 	seed.SeedRoles(queries)
 	seed.SeedUsers(queries)
+
+	// start task scheduler
+	tasks.InitScheduler(queries)
 
 	// start Echo server
 	startServer(e)

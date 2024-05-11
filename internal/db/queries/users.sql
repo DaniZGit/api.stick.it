@@ -61,3 +61,16 @@ LEFT JOIN files sf ON s.file_id = sf.id
 INNER JOIN pages p ON s.page_id = p.id
 WHERE us.user_id = $1 AND p.album_id = $2 AND (us.amount > 0 OR us.sticked = true)
 ORDER BY us.id DESC;
+
+-- name: UpdateUsersFreePacks :exec
+UPDATE users
+SET available_free_packs = available_free_packs + 1,
+last_free_pack_obtain_date = NOW()
+WHERE available_free_packs < $1
+AND DATE_PART('hour', AGE(NOW(), last_free_pack_obtain_date)) >= 12;
+
+-- name: ClaimUserFreePack :one
+UPDATE users
+SET available_free_packs = available_free_packs - 1
+WHERE id = $1 AND available_free_packs > 0
+RETURNING *;

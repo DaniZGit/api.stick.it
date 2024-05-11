@@ -16,6 +16,7 @@ type Pack struct {
 	AlbumID uuid.UUID `json:"album_id"`
 	FileID uuid.NullUUID `json:"file_id"`
 	File *File `json:"file"`
+	Album *Album `json:"album"`
 	Rarities []PackRarity `json:"rarities"`
 }
 

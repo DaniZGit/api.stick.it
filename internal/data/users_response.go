@@ -12,4 +12,6 @@ type UserResponse struct {
 	Email     string           `json:"email"`
 	Tokens 		int							 `json:"tokens"`
 	Token			string					 `json:"token,omitempty"`
+	AvailableFreePacks int `json:"available_free_packs"`
+	LastFreePackObtainDate pgtype.Timestamp `json:"last_free_pack_obtain_date"`
 }

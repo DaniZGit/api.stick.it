@@ -55,6 +55,14 @@ func castToShopPacksResponse(rows []database.GetShopPacksRow) ShopPacksResponse 
 			}
 		}
 
+		// add album
+		if !row.AlbumAlbumID.IsNil() {
+			pack.Album = &Album{
+				ID: row.AlbumAlbumID,
+				Title: row.AlbumTitle,
+			}
+		}
+
 		// unmarshal PackRarities
 		var packRarities []PackRarity
 		json.Unmarshal(row.PackRarities, &packRarities)

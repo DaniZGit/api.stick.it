@@ -259,3 +259,50 @@ func StickUserSticker(c echo.Context) error  {
 	
 	return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userSticker, &database.File{}, &database.Rarity{}))
 }
+
+///////////////////////////////
+/* POST - "/users/free-pack" */
+///////////////////////////////
+func ClaimUserFreePack(c echo.Context) error  {
+	ctx := c.(*app.ApiContext)
+
+	u := new(data.ClaimUserFreePackRequest)
+	if err := ctx.Bind(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	claims := auth.GetClaimsFromToken(*ctx)
+	// claim free pack - decremenet available_free_packs column by 1
+	user, err := ctx.Queries.ClaimUserFreePack(ctx.Request().Context(), claims.UserID)
+	if err != nil { // if no rows are returning, means the user didn't have any free packs available
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
+	//¸add selected pack to the user
+	pack, err := ctx.Queries.CreateUserPack(ctx.Request().Context(), database.CreateUserPackParams{
+		ID: uuid.Must(uuid.NewV4()),
+		UserID: claims.UserID,
+		PackID: u.PackID,
+		Amount: 1,
+	})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+	
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"user": data.UserResponse{
+			ID: user.ID,
+			CreatedAt: user.CreatedAt,
+			Username: user.Username,
+			Email: user.Email,
+			Tokens: int(user.Tokens),
+			AvailableFreePacks: int(user.AvailableFreePacks),
+			LastFreePackObtainDate: user.LastFreePackObtainDate,
+		},
+		"pack": data.BuildPackResponse(pack, &database.File{}),
+	})
+}
