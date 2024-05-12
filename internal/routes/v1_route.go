@@ -17,6 +17,7 @@ func V1(e *echo.Echo) {
 
 	v1.POST("/register", handlers.UserRegister)
 	v1.POST("/login", handlers.UserLogin)
+	v1.PUT("/confirmation", handlers.UserMailConfirmation)
 
 	// use JWT auth
 	v1.Use(middleware.JwtAuth())

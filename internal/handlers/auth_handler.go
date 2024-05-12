@@ -88,13 +88,54 @@ func UserLogin(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusUnauthorized, errors.New("user with the provided email does not exist"))
 	}
 
+	// check if user has already confirmed email
+	if (user.ConfirmationToken.Valid) {
+		return ctx.ErrorResponse(http.StatusUnauthorized, errors.New("user must first confirm email"))
+	}
+
 	// compare user's password with their hashed variant in DB
 	err = auth.ValidatePassword(u.Password, user.Password)
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusUnauthorized, errors.New("email or password does not match"))
 	}
 
-	// generate a new jwt token and set cookie
+	// generate a new jwt token
+	t, err := auth.CreateJwtToken(user)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusBadRequest, err)
+	}
+
+	// return user with token
+	return ctx.JSON(
+		http.StatusCreated,
+		data.CastToUserResponse(user, t),
+	)
+}
+
+///////////////////////////
+/* PUT - "/confirmation" */
+///////////////////////////
+func UserMailConfirmation(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	// strip payload body
+	u := new(data.UserMailConfirmationParams)
+	if err := ctx.Bind(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	// validate payload
+	if err := ctx.Validate(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	// confirm user mail
+	user, err := ctx.Queries.ConfirmUserMail(ctx.Request().Context(), pgtype.Text{String: u.Token, Valid: true})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusUnauthorized, errors.New("user with the provided email does not exist"))
+	}
+
+	// generate a new jwt token
 	t, err := auth.CreateJwtToken(user)
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusBadRequest, err)

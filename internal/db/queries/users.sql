@@ -3,6 +3,12 @@ INSERT INTO users (id, username, email, password, confirmation_token, role_id)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
+-- name: ConfirmUserMail :one
+UPDATE users
+SET confirmation_token = NULL
+WHERE confirmation_token = $1
+RETURNING *;
+
 -- name: GetUser :one
 SELECT *
 FROM users

@@ -8,6 +8,10 @@ type UserRegisterParams struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+type UserMailConfirmationParams struct {
+	Token string `json:"token" validate:"required"`
+}
+
 type UserLoginParams struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
