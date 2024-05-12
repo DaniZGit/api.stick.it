@@ -1,0 +1,29 @@
+{{define "subject"}}Welcome to Stick.it!{{end}}
+{{define "plainBody"}}
+  Hi {{.Data.Username}},
+
+  Thanks for signing up on Stick.it!
+  Please confirm your registration process by clicking the link below:
+    Confirm Registration
+
+  Best regards,
+  Stick Team
+{{end}}
+{{define "htmlBody"}}
+  <!doctype html>
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width" />
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body>
+      <p>Hi {{.Data.Username}},</p>
+      <p>Thanks for signing up on Stick.it!</p>
+      <p>Please confirm your registration process by clicking the link below:</p>
+      <a href="{{.App.BaseURL}}/auth/confirmation?t={{$.Data.ConfirmationToken.String}}">Confirm Registration</a>
+
+      <p>Best regards,</p>
+      <p>Stick Team</p>
+    </body>
+  </html>
+{{end}}

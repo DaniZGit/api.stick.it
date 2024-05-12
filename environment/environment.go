@@ -122,6 +122,35 @@ func DbConfig() DBConfigType {
 	}
 }
 
+type SMTPConfigType struct {
+	Host string
+	Port int
+	Username string
+	Password string
+	Sender string
+}
+func SMTPConfig() SMTPConfigType {
+	host := readEnv("SMTP_HOST")
+
+	portEnv := readEnv("SMTP_PORT")
+	port, err := strconv.Atoi(portEnv)
+	if err != nil || port <= 0 {
+		log.Fatal("SMTP_PORT value must be a positive number greater than 0")
+	}
+
+	username := readEnv("SMTP_USERNAME")
+	password := readEnv("SMTP_PASSWORD")
+	sender := readEnv("SMTP_SENDER")
+
+	return SMTPConfigType{
+		Host: host,
+		Port: port,
+		Username: username,
+		Password: password,
+		Sender: sender,
+	}
+}
+
 func readEnv(name string) string {
 	variable := os.Getenv(name)
 	if variable == "" {

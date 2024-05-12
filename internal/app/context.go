@@ -3,7 +3,9 @@ package app
 import (
 	"errors"
 
+	"github.com/DaniZGit/api.stick.it/environment"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
+	"github.com/DaniZGit/api.stick.it/internal/mailer"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,16 +16,26 @@ type ApiContext struct{
 	echo.Context
 	Queries *database.Queries
 	DBPool *pgxpool.Pool
+	Mailer mailer.Mailer
 }
 
 func ExtendedContext(dbPool *pgxpool.Pool, q *database.Queries) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			smtpConfig := environment.SMTPConfig()
+
 			// Create an ApiContext with the database queries
 			cc := &ApiContext{
 				Context: c,
 				Queries: q,
 				DBPool: dbPool,
+				Mailer: mailer.New(
+					smtpConfig.Host, 
+					smtpConfig.Port, 
+					smtpConfig.Username, 
+					smtpConfig.Password, 
+					smtpConfig.Sender,
+				),
 			}
 			
 			// Call the next middleware or handler in the chain

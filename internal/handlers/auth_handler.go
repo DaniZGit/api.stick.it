@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/DaniZGit/api.stick.it/internal/app"
@@ -9,6 +10,7 @@ import (
 	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -35,28 +37,32 @@ func UserRegister(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
+	newUUID := uuid.Must(uuid.NewV4())
+	// create confirmation token
+	confirmationToken := auth.GenerateConfirmationToken(newUUID)
+
 	// create user
 	user, err := ctx.Queries.CreateUser(ctx.Request().Context(), database.CreateUserParams{
-		ID: uuid.Must(uuid.NewV4()),
+		ID: newUUID,
 		Username: u.Username,
 		Email: u.Email,
 		Password: string(hashedPassword),
+		ConfirmationToken: pgtype.Text{String: confirmationToken, Valid: true},
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	// generate a new jwt token and set cookie
-	t, err := auth.CreateJwtToken(user)
-	if err != nil {
-		return ctx.ErrorResponse(http.StatusBadRequest, err)
-	}
+	// send confirmation email
+	go func() {
+		err = ctx.Mailer.Send(user.Email, "account_confirmation_mail.tmpl", user)
+		if err != nil {
+			fmt.Println("Error while sending confirmation email", err)
+		}
+	}()
 
 	// return user with token
-	return ctx.JSON(
-		http.StatusCreated,
-		data.CastToUserResponse(user, t),
-	)
+	return ctx.NoContent(http.StatusCreated)
 }
 
 /////////////////////

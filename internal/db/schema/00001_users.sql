@@ -6,6 +6,7 @@ CREATE TABLE users (
 	username VARCHAR(255) UNIQUE NOT NULL,
 	email VARCHAR(255) UNIQUE NOT NULL,
 	password CHAR(60) NOT NULL,
+	confirmation_token CHAR(64), 
 	tokens BIGINT NOT NULL DEFAULT 0,
 	available_free_packs INT NOT NULL DEFAULT 1,
 	last_free_pack_obtain_date TIMESTAMP NOT NULL DEFAULT NOW(),
