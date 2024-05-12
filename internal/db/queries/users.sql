@@ -74,3 +74,9 @@ UPDATE users
 SET available_free_packs = available_free_packs - 1
 WHERE id = $1 AND available_free_packs > 0
 RETURNING *;
+
+-- name: ResetUserFreePackDate :one
+UPDATE users
+SET last_free_pack_obtain_date = NOW()
+WHERE id = $1
+RETURNING *;

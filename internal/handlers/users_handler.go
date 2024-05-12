@@ -286,8 +286,16 @@ func ClaimUserFreePack(c echo.Context) error  {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	//¸add selected pack to the user
-	pack, err := ctx.Queries.CreateUserPack(ctx.Request().Context(), database.CreateUserPackParams{
+	// check if user had all freebies, if they did we need to reset obtain date to current date
+	if user.AvailableFreePacks == 2-1 {
+		user, err = ctx.Queries.ResetUserFreePackDate(ctx.Request().Context(), claims.UserID)
+		if err != nil {
+			return ctx.ErrorResponse(http.StatusInternalServerError, err)
+		}
+	}
+
+	// add selected pack to the user
+	userPack, err := ctx.Queries.CreateUserPack(ctx.Request().Context(), database.CreateUserPackParams{
 		ID: uuid.Must(uuid.NewV4()),
 		UserID: claims.UserID,
 		PackID: u.PackID,
@@ -298,7 +306,7 @@ func ClaimUserFreePack(c echo.Context) error  {
 	}
 	
 	return ctx.JSON(http.StatusOK, echo.Map{
-		"user": data.CastToUserResponse(user, claims.ID),
-		"pack": data.BuildPackResponse(pack, &database.File{}),
+		"user": data.CastToUserResponse(user, claims.ID).User,
+		"user_pack": data.BuildPackResponse(userPack, &database.File{}).(data.UserPackResponse).UserPack,
 	})
 }
