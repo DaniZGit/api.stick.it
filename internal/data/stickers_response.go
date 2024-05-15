@@ -34,6 +34,7 @@ type UserSticker struct {
 	Amount int `json:"amount"`
 	Sticked bool `json:"sticked"`
 	Sticker Sticker `json:"sticker"`
+	Album *Album `json:"album"`
 }
 
 type StickerResponse struct {
@@ -99,6 +100,8 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File, rarity *
 			}
 		case []database.GetUserStickersRow:
 			return castToUserStickersResponse(value)
+		case []database.GetUserStickersForAlbumRow:
+			return castToUserStickersForAlbumResponse(value)
 	}
 
 	return StickerResponse{}
@@ -198,6 +201,71 @@ func castToStickerRaritiesResponse(stickersRows []database.GetStickerRaritiesRow
 }
 
 func castToUserStickersResponse(rows []database.GetUserStickersRow) UserStickersResponse {
+	if rows == nil || len(rows) <= 0 {
+		return UserStickersResponse{
+			UserStickers: []UserSticker{},
+		}
+	}
+
+	userStickers := []UserSticker{}
+	for _, row := range rows {
+		sticker := Sticker{
+			ID: uuid.NullUUID{UUID: row.StickerID, Valid: !row.StickerID.IsNil()},
+			Title: row.StickerTitle,
+			Type: row.StickerType,
+			Top: row.StickerTop,
+			Left: row.StickerLeft,
+			Width: row.StickerWidth,
+			Height: row.StickerHeight,
+			Numerator: row.StickerNumerator,
+			Denominator: row.StickerDenominator,
+			Rotation: row.StickerRotation,
+			PageID: row.StickerPageID,
+			RarityID: row.StickerRarityID,
+			CreatedAt: row.StickerCreatedAt,
+			StickerID: row.StickerStickerID,
+		}
+
+		// add rarity
+		if !row.StickerRarityID.UUID.IsNil() {
+			sticker.Rarity = &Rarity{
+				ID: row.StickerRarityID,
+				Title: row.StickerRarityTitle.String,
+			}
+		}
+
+		// add file
+		if !row.StickerFileID.UUID.IsNil() {
+			sticker.File = &File{
+				ID: row.StickerFileID,
+				Name: row.StickerFileName.String,
+				Url: assetmanager.GetPublicAssetsFileUrl(row.StickerFilePath.String, ""),
+			}
+		}
+
+		userSticker := UserSticker{
+			ID: row.ID,
+			UserID: row.UserID,
+			StickerID: row.StickerID,
+			Amount: int(row.Amount),
+			Sticked: row.Sticked,
+			Sticker: sticker,
+			Album: &Album{
+				ID: row.AlbumID,
+				Title: row.AlbumTitle,
+			},
+		}
+
+		userStickers = append(userStickers, userSticker)
+	}
+	
+	return UserStickersResponse{
+		UserStickers: userStickers,
+	}
+}
+
+
+func castToUserStickersForAlbumResponse(rows []database.GetUserStickersForAlbumRow) UserStickersResponse {
 	if rows == nil || len(rows) <= 0 {
 		return UserStickersResponse{
 			UserStickers: []UserSticker{},
