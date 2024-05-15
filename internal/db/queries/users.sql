@@ -105,3 +105,9 @@ UPDATE users
 SET last_free_pack_obtain_date = NOW()
 WHERE id = $1
 RETURNING *;
+
+-- name: DecreaseUserStickerAmount :one
+UPDATE user_stickers
+SET amount = amount - 1
+WHERE id = $1 AND amount > 0
+RETURNING *;

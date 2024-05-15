@@ -76,4 +76,8 @@ func V1(e *echo.Echo) {
 	v1.POST("/transactions/create-payment-intent", handlers.CreatePaymentIntent)
 	v1.POST("/transactions/pack", handlers.BuyPack)
 	v1.POST("/transactions/bundle", handlers.BuyBundle)
+
+	// auction
+	v1.POST("/auction/offers", handlers.CreateAuctionOffer)
+	v1.GET("/auction/offers", handlers.GetAuctionOffers)
 }

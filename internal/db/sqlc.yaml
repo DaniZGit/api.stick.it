@@ -3,6 +3,8 @@ sql:
   - engine: "postgresql"
     queries: "./queries"
     schema: "./schema"
+    # database:
+    #   uri: "postgres://postgres:postgres@localhost:5432/api.stick.it"
     gen:
       go:
         package: "database"

@@ -47,8 +47,9 @@ ALTER TABLE opened_pack_stickers ADD CONSTRAINT opened_pack_stickers_sticker_id_
 ALTER TABLE opened_pack_stickers ADD CONSTRAINT opened_pack_stickers_opened_pack_id_opened_packs_id FOREIGN KEY (sticker_id) REFERENCES opened_packs(id);
 
 -- auction_offers
-ALTER TABLE auction_offers ADD CONSTRAINT auction_offers_user_id_users_id FOREIGN KEY (user_id) REFERENCES users(id);
-ALTER TABLE auction_offers ADD CONSTRAINT auction_offers_sticker_id_stickers_id FOREIGN KEY (sticker_id) REFERENCES stickers(id);
+ALTER TABLE auction_offers ADD CONSTRAINT auction_offers_user_sticker_id_user_stickers_id FOREIGN KEY (user_sticker_id) REFERENCES user_stickers(id);
+-- ALTER TABLE auction_offers ADD CONSTRAINT auction_offers_user_id_users_id FOREIGN KEY (user_id) REFERENCES users(id);
+-- ALTER TABLE auction_offers ADD CONSTRAINT auction_offers_sticker_id_stickers_id FOREIGN KEY (sticker_id) REFERENCES stickers(id);
 
 -- auction_bids
 ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_auction_offer_id_auction_offers_id FOREIGN KEY (auction_offer_id) REFERENCES auction_bids(id);
@@ -82,7 +83,8 @@ ALTER TABLE opened_packs DROP CONSTRAINT IF EXISTS opened_packs_pack_id_packs_id
 ALTER TABLE opened_packs DROP CONSTRAINT IF EXISTS opened_packs_user_id_users_id;
 ALTER TABLE opened_pack_stickers DROP CONSTRAINT IF EXISTS opened_pack_stickers_sticker_id_stickers_id;
 ALTER TABLE opened_pack_stickers DROP CONSTRAINT IF EXISTS opened_pack_stickers_opened_pack_id_opened_packs_id;
-ALTER TABLE auction_offers DROP CONSTRAINT IF EXISTS auction_offers_user_id_users_id;
-ALTER TABLE auction_offers DROP CONSTRAINT IF EXISTS auction_offers_sticker_id_stickers_id;
+ALTER TABLE auction_offers DROP CONSTRAINT IF EXISTS auction_offers_user_sticker_id_user_stickers_id;
+-- ALTER TABLE auction_offers DROP CONSTRAINT IF EXISTS auction_offers_user_id_users_id;
+-- ALTER TABLE auction_offers DROP CONSTRAINT IF EXISTS auction_offers_sticker_id_stickers_id;
 ALTER TABLE auction_bids DROP CONSTRAINT IF EXISTS auction_bids_auction_offer_id_auction_offers_id;
 ALTER TABLE auction_bids DROP CONSTRAINT IF EXISTS auction_bids_user_id_users_id;
