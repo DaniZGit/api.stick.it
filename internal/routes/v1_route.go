@@ -80,4 +80,6 @@ func V1(e *echo.Echo) {
 	// auction
 	v1.POST("/auction/offers", handlers.CreateAuctionOffer)
 	v1.GET("/auction/offers", handlers.GetAuctionOffers)
+	v1.GET("/auction/bids", handlers.GetAuctionBids)
+	v1.POST("/auction/bids", handlers.CreateAuctionBid)
 }
