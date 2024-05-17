@@ -11,6 +11,7 @@ type AuctionOffer struct {
 	ID uuid.UUID `json:"id"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	StartingBid  int           `json:"starting_bid"`
+	Duration int `json:"duration"`
 	UserStickerID uuid.UUID `json:"user_sticker_id"`
 	UserSticker UserSticker `json:"user_sticker"`
 	LatestBid int `json:"latest_bid"`
@@ -47,6 +48,7 @@ func CastToAuctionOfferResponse(row database.AuctionOffer) AuctionOfferResponse 
 			ID: row.ID,
 			CreatedAt: row.CreatedAt,
 			StartingBid: int(row.StartingBid),
+			Duration: int(row.Duration),
 			UserStickerID: row.UserStickerID,
 		},
 	}
@@ -65,6 +67,7 @@ func CastToAuctionOffersResponse(rows []database.GetAuctionOffersRow) AuctionOff
 			ID: row.ID,
 			CreatedAt: row.CreatedAt,
 			StartingBid: int(row.StartingBid),
+			Duration: int(row.Duration),
 			UserStickerID: row.UserStickerID,
 			LatestBid: int(row.LatestBid),
 		}

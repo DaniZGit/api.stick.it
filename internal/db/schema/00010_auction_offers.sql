@@ -4,9 +4,8 @@ CREATE TABLE auction_offers (
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   starting_bid INTEGER NOT NULL,
+  duration INTEGER NOT NULL DEFAULT 28800000, -- 8 hours
   user_sticker_id UUID NOT NULL
-  -- user_id UUID NOT NULL,
-  -- sticker_id UUID NOT NULL
 );
 
 -- +goose Down
