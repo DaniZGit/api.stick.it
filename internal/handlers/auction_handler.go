@@ -8,6 +8,7 @@ import (
 	"github.com/DaniZGit/api.stick.it/internal/auth"
 	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
+	"github.com/DaniZGit/api.stick.it/internal/ws"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -200,4 +201,12 @@ func GetAuctionBids(c echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusCreated, data.CastToAuctionBidsResponse(auctionBids))
+}
+
+func ServeAuctionWS(c echo.Context, hub *ws.Hub) error {
+	ctx := c.(*app.ApiContext)
+	
+	ws.ServeWs(hub, ctx)
+
+	return nil
 }

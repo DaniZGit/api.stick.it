@@ -11,6 +11,7 @@ import (
 	api_middleware "github.com/DaniZGit/api.stick.it/internal/middleware"
 	"github.com/DaniZGit/api.stick.it/internal/routes"
 	"github.com/DaniZGit/api.stick.it/internal/tasks"
+	"github.com/DaniZGit/api.stick.it/internal/ws"
 	"github.com/joho/godotenv"
 	"github.com/stripe/stripe-go/v78"
 
@@ -32,6 +33,10 @@ func main() {
 	dbPool, queries := db.Init()
 	defer dbPool.Close()
 
+	// create websocket hub
+	hub := ws.NewHub()
+	go hub.Run()
+	
 	// use extended context middleware
 	e.Use(app.ExtendedContext(dbPool, queries))
 
@@ -45,7 +50,7 @@ func main() {
 
 	// add routes/endpoints
 	routes.Global(e)
-	routes.V1(e)
+	routes.V1(e, hub)
 
 	// expose assets folder
 	e.Static("/assets", "assets/public")

@@ -5,6 +5,7 @@ import (
 
 	"github.com/DaniZGit/api.stick.it/internal/handlers"
 	"github.com/DaniZGit/api.stick.it/internal/middleware"
+	"github.com/DaniZGit/api.stick.it/internal/ws"
 	"github.com/labstack/echo/v4"
 )
 
@@ -12,7 +13,7 @@ func Global(e *echo.Echo) {
 	e.GET("/ping", func(c echo.Context) error {return c.JSON(http.StatusOK, "pong")})
 }
 
-func V1(e *echo.Echo) {
+func V1(e *echo.Echo, hub *ws.Hub) {
 	v1 := e.Group("/v1")
 
 	v1.POST("/register", handlers.UserRegister)
@@ -83,4 +84,7 @@ func V1(e *echo.Echo) {
 	v1.GET("/auction/offers", handlers.GetAuctionOffers)
 	v1.GET("/auction/bids", handlers.GetAuctionBids)
 	v1.POST("/auction/bids", handlers.CreateAuctionBid)
+	e.GET("/v1/auction/ws", func(c echo.Context) error {
+		return handlers.ServeAuctionWS(c, hub)
+	})
 }

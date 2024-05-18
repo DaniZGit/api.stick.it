@@ -7,6 +7,7 @@ require (
 	github.com/go-playground/validator/v10 v10.17.0
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
