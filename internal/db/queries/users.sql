@@ -51,24 +51,11 @@ FROM user_packs up
 WHERE up.user_id = $1 AND up.pack_id = $2
 LIMIT 1;
 
--- name: GetUserStickers :many
-SELECT
-  us.*,
-  s.created_at AS sticker_created_at, s.title AS sticker_title, s.type AS sticker_type, 
-  s.top AS sticker_top, s.left AS sticker_left, s.width AS sticker_width, s.height AS sticker_height, 
-  s.numerator AS sticker_numerator, s.denominator AS sticker_denominator,
-  s.rotation AS sticker_rotation, s.page_id AS sticker_page_id, s.sticker_id AS sticker_sticker_id, s.rarity_id AS sticker_rarity_id, -- sticker
-  r.id AS sticker_rarity_id, r.title AS sticker_rarity_title, -- sticker rarity
-  sf.id AS sticker_file_id, sf.name AS sticker_file_name, sf.path AS sticker_file_path, -- sticker file
-  a.id AS album_id, a.title AS album_title -- album
-FROM user_stickers us
-INNER JOIN stickers s ON us.sticker_id = s.id
-LEFT JOIN rarities r ON s.rarity_id = r.id
-LEFT JOIN files sf ON s.file_id = sf.id
-INNER JOIN pages p ON s.page_id = p.id
-INNER JOIN albums a ON a.id = p.album_id
-WHERE us.user_id = $1 AND (us.amount > 0 OR us.sticked = true)
-ORDER BY us.id DESC;
+-- name: GetUserSticker :one
+SELECT *
+FROM user_stickers
+WHERE id = $1
+LIMIT 1;
 
 -- name: GetUserStickersForAlbum :many
 SELECT
@@ -85,6 +72,25 @@ LEFT JOIN rarities r ON s.rarity_id = r.id
 LEFT JOIN files sf ON s.file_id = sf.id
 INNER JOIN pages p ON s.page_id = p.id
 WHERE us.user_id = $1 AND p.album_id = $2 AND (us.amount > 0 OR us.sticked = true)
+ORDER BY us.id DESC;
+
+-- name: GetUserAuctionStickers :many
+SELECT
+  us.*,
+  s.created_at AS sticker_created_at, s.title AS sticker_title, s.type AS sticker_type, 
+  s.top AS sticker_top, s.left AS sticker_left, s.width AS sticker_width, s.height AS sticker_height, 
+  s.numerator AS sticker_numerator, s.denominator AS sticker_denominator,
+  s.rotation AS sticker_rotation, s.page_id AS sticker_page_id, s.sticker_id AS sticker_sticker_id, s.rarity_id AS sticker_rarity_id, -- sticker
+  r.id AS sticker_rarity_id, r.title AS sticker_rarity_title, -- sticker rarity
+  sf.id AS sticker_file_id, sf.name AS sticker_file_name, sf.path AS sticker_file_path, -- sticker file
+  a.id AS album_id, a.title AS album_title -- album
+FROM user_stickers us
+INNER JOIN stickers s ON us.sticker_id = s.id
+LEFT JOIN rarities r ON s.rarity_id = r.id
+LEFT JOIN files sf ON s.file_id = sf.id
+INNER JOIN pages p ON s.page_id = p.id
+INNER JOIN albums a ON a.id = p.album_id
+WHERE us.user_id = $1 AND us.amount > 0 AND s.rarity_id IS NOT NULL
 ORDER BY us.id DESC;
 
 -- name: UpdateUsersFreePacks :exec

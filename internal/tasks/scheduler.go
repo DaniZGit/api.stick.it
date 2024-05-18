@@ -36,7 +36,14 @@ func addTasks(scheduler gocron.Scheduler, queries *database.Queries) {
 	_, err := scheduler.NewJob(freebiesTask(queries))
 	if err != nil {
 		// handle error
-		fmt.Println("error while creating job", err)
+		fmt.Println("error while creating freebies task", err)
+		return
+	}
+
+	_, err = scheduler.NewJob(markCompletedAuctionsTask(queries))
+	if err != nil {
+		// handle error
+		fmt.Println("error while creating completed auctions task", err)
 		return
 	}
 

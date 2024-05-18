@@ -37,9 +37,18 @@ func CreateAuctionOffer(c echo.Context) error {
 	qtx := ctx.Queries.WithTx(tx)
 
 	// decrese user sticker amount by 1
-	_, err = qtx.DecreaseUserStickerAmount(ctx.Request().Context(), a.UserStickerID)
+	userSticker, err := qtx.DecreaseUserStickerAmount(ctx.Request().Context(), a.UserStickerID)
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, err)
+	}
+
+	// check if sticker has rarity
+	sticker, err := qtx.GetSticker(ctx.Request().Context(), userSticker.StickerID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+	if sticker.RarityID.UUID.IsNil() {
+		return ctx.ErrorResponse(http.StatusBadRequest, errors.New("cannot auction a base sticker"))
 	}
 
 	// create auction offer
@@ -102,19 +111,23 @@ func CreateAuctionBid(c echo.Context) error {
 	lastBid := 0
 	lastUserID := uuid.NullUUID{}
 
+	// get auction offer
+	auctionOffer, err := qtx.GetAuctionOffer(ctx.Request().Context(), a.AuctionOfferID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotAcceptable, err)
+	}
+	// check if user is trying to bid on its own auction offer
+	if auctionOffer.UserStickerUserID == claims.UserID {
+		return ctx.ErrorResponse(http.StatusNotAcceptable, errors.New("cannot bid on your own auction offer"))
+	}
+
 	// get current bid
 	lastAuctionBid, err := qtx.GetLatestAuctionBid(ctx.Request().Context(), a.AuctionOfferID)
 	if err != nil && err != pgx.ErrNoRows {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, err)
 	}
-
 	// if there is no current bid, get starting_bid from auction offer instead
 	if (err == pgx.ErrNoRows) {
-		auctionOffer, err := qtx.GetAuctionOffer(ctx.Request().Context(), a.AuctionOfferID)
-		if err != nil {
-			return ctx.ErrorResponse(http.StatusNotAcceptable, err)
-		}	
-
 		lastBid = int(auctionOffer.StartingBid)
 	} else {
 		lastBid = int(lastAuctionBid.Bid)

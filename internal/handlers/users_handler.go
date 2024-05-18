@@ -67,26 +67,16 @@ func GetUserStickers(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
 
-	if u.AlbumID.IsNil() {
-		userStickers, err := ctx.Queries.GetUserStickers(ctx.Request().Context(), u.ID)
+	userStickers, err := ctx.Queries.GetUserStickersForAlbum(ctx.Request().Context(), database.GetUserStickersForAlbumParams{
+		UserID: u.ID,
+		AlbumID: u.AlbumID,
+	})
 
-		if err != nil {
-			return ctx.ErrorResponse(http.StatusNotImplemented, err)
-		}
-
-		return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userStickers, &database.File{}, &database.Rarity{}))
-	} else {
-		userStickers, err := ctx.Queries.GetUserStickersForAlbum(ctx.Request().Context(), database.GetUserStickersForAlbumParams{
-			UserID: u.ID,
-			AlbumID: u.AlbumID,
-		})
-
-		if err != nil {
-			return ctx.ErrorResponse(http.StatusNotImplemented, err)
-		}
-
-		return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userStickers, &database.File{}, &database.Rarity{}))
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
+
+	return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userStickers, &database.File{}, &database.Rarity{}))
 }
 
 func OpenUserPacks(c echo.Context) error  {
@@ -320,4 +310,25 @@ func ClaimUserFreePack(c echo.Context) error  {
 		"user": data.CastToUserResponse(user, claims.ID).User,
 		"user_pack": data.BuildPackResponse(userPack, &database.File{}).(data.UserPackResponse).UserPack,
 	})
+}
+
+func GetUserAuctionStickers(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	u := new(data.UserAuctionStickersGetRequest)
+	if err := ctx.Bind(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	userStickers, err := ctx.Queries.GetUserAuctionStickers(ctx.Request().Context(), u.ID)
+
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userStickers, &database.File{}, &database.Rarity{}))
 }

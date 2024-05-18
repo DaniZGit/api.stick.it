@@ -24,7 +24,11 @@ type UserPacksGetRequest struct {
 
 type UserStickersGetRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
-	AlbumID uuid.UUID `query:"album_id"`
+	AlbumID uuid.UUID `query:"album_id" validate:"required"`
+}
+
+type UserAuctionStickersGetRequest struct {
+	ID uuid.UUID `param:"id" validate:"required"`
 }
 
 type UserPackOpenRequest struct {

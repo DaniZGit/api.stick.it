@@ -26,12 +26,15 @@ LEFT join LATERAL ( -- gets last auction bid
 	where auction_offer_id = ao.id
 	order by bid desc
 	limit 1
-) as ab on ab.auction_offer_id = ao.id;
+) as ab on ab.auction_offer_id = ao.id
+WHERE ao.completed = false;
 
 -- name: GetAuctionOffer :one
-SELECT *
-FROM auction_offers
-WHERE id = $1
+SELECT ao.*,
+  us.user_id AS user_sticker_user_id, us.sticker_id AS user_sticker_sticker_id, us.amount AS user_sticker_amount, us.sticked AS user_sticker_sticked -- user_sticker
+FROM auction_offers ao
+INNER JOIN user_stickers us ON ao.user_sticker_id = us.id
+WHERE ao.id = $1
 LIMIT 1;
 
 -- name: CreateAuctionBid :one
@@ -52,10 +55,20 @@ ORDER BY ab.bid ASC;
 -- name: GetLatestAuctionBid :one
 SELECT ab.*,
   u.id AS user_user_id, u.username AS user_username, u.email AS user_email, u.tokens AS user_tokens, -- user
-  uf.id AS user_file_id, uf.name AS user_file_name, uf.path AS user_file_path -- user file
+  uf.id AS user_file_id, uf.name AS user_file_name, uf.path AS user_file_path, -- user file
+  s.id AS sticker_id -- sticker
 FROM auction_bids ab
 INNER JOIN users u ON ab.user_id = u.id
 LEFT JOIN files uf ON uf.id = u.file_id
+INNER JOIN auction_offers ao ON ab.auction_offer_id = ao.id
+INNER JOIN user_stickers us ON ao.user_sticker_id = us.id
+INNER JOIN stickers s ON us.sticker_id = s.id
 WHERE ab.auction_offer_id = $1
 ORDER BY ab.created_at DESC
 LIMIT 1;
+
+-- name: MarkCompletedAuctionOffers :many
+UPDATE auction_offers
+SET completed = true
+WHERE completed = false AND extract(epoch from (created_at + duration * interval '1 millisecond' - Now() at TIME zone 'UTC')) <= 0
+RETURNING *;

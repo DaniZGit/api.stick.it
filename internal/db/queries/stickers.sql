@@ -3,6 +3,12 @@ INSERT INTO stickers(id, title, "type", "top", "left", "width", "height", "numer
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING *;
 
+-- name: GetSticker :one
+SELECT *
+FROM stickers
+WHERE id = $1
+LIMIT 1;
+
 -- name: GetPageStickers :many
 SELECT 
   s.*, -- stickers

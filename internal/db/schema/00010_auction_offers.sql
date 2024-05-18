@@ -5,6 +5,7 @@ CREATE TABLE auction_offers (
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   starting_bid INTEGER NOT NULL,
   duration INTEGER NOT NULL DEFAULT 28800000, -- 8 hours
+  completed BOOLEAN NOT NULL DEFAULT false,
   user_sticker_id UUID NOT NULL
 );
 

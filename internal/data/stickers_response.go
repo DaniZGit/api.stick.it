@@ -98,10 +98,10 @@ func BuildStickerResponse(stickerRows interface{}, file *database.File, rarity *
 					Sticker: Sticker{},
 				},
 			}
-		case []database.GetUserStickersRow:
-			return castToUserStickersResponse(value)
 		case []database.GetUserStickersForAlbumRow:
 			return castToUserStickersForAlbumResponse(value)
+		case []database.GetUserAuctionStickersRow:
+			return castToUserAuctionStickersResponse(value)
 	}
 
 	return StickerResponse{}
@@ -200,7 +200,7 @@ func castToStickerRaritiesResponse(stickersRows []database.GetStickerRaritiesRow
 	}
 }
 
-func castToUserStickersResponse(rows []database.GetUserStickersRow) UserStickersResponse {
+func castToUserAuctionStickersResponse(rows []database.GetUserAuctionStickersRow) UserStickersResponse {
 	if rows == nil || len(rows) <= 0 {
 		return UserStickersResponse{
 			UserStickers: []UserSticker{},
