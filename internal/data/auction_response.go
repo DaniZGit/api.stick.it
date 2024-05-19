@@ -43,16 +43,68 @@ type AuctionBidsResponse struct {
 	AuctionBids []AuctionBid `json:"auction_bids"`
 }
 
-func CastToAuctionOfferResponse(row database.AuctionOffer) AuctionOfferResponse {
-	return AuctionOfferResponse{
-		AuctionOffer: AuctionOffer{
-			ID: row.ID,
-			CreatedAt: row.CreatedAt,
-			StartingBid: int(row.StartingBid),
-			Duration: int(row.Duration),
-			Completed: row.Completed,
-			UserStickerID: row.UserStickerID,
+func CastToAuctionOfferResponse(row database.GetAuctionOfferRow) AuctionOfferResponse {
+	auctionOffer := AuctionOffer{
+		ID: row.ID,
+		CreatedAt: row.CreatedAt,
+		StartingBid: int(row.StartingBid),
+		Duration: int(row.Duration),
+		Completed: row.Completed,
+		UserStickerID: row.UserStickerID,
+		LatestBid: int(row.LatestBid),
+	}
+
+	sticker := Sticker{
+		ID: uuid.NullUUID{UUID: row.StickerID, Valid: !row.StickerID.IsNil()},
+		Title: row.StickerTitle,
+		Type: row.StickerType,
+		Top: row.StickerTop,
+		Left: row.StickerLeft,
+		Width: row.StickerWidth,
+		Height: row.StickerHeight,
+		Numerator: row.StickerNumerator,
+		Denominator: row.StickerDenominator,
+		Rotation: row.StickerRotation,
+		PageID: row.StickerPageID,
+		RarityID: row.StickerRarityID,
+		CreatedAt: row.StickerCreatedAt,
+		StickerID: row.StickerStickerID,
+	}
+
+	// add rarity
+	if !row.StickerRarityID.UUID.IsNil() {
+		sticker.Rarity = &Rarity{
+			ID: row.StickerRarityID,
+			Title: row.StickerRarityTitle.String,
+		}
+	}
+
+	// add file
+	if !row.StickerFileID.UUID.IsNil() {
+		sticker.File = &File{
+			ID: row.StickerFileID,
+			Name: row.StickerFileName.String,
+			Url: assetmanager.GetPublicAssetsFileUrl(row.StickerFilePath.String, ""),
+		}
+	}
+
+	userSticker := UserSticker{
+		ID: row.UserStickerID,
+		UserID: row.UserStickerUserID,
+		StickerID: row.UserStickerStickerID,
+		Amount: int(row.UserStickerAmount),
+		Sticked: row.UserStickerSticked,
+		Sticker: sticker,
+		Album: &Album{
+			ID: row.AlbumID,
+			Title: row.AlbumTitle,
 		},
+	}
+
+	auctionOffer.UserSticker = userSticker
+	
+	return AuctionOfferResponse{
+		AuctionOffer: auctionOffer,
 	}
 }
 

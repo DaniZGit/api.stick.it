@@ -33,9 +33,9 @@ func main() {
 	dbPool, queries := db.Init()
 	defer dbPool.Close()
 
-	// create websocket hub
-	hub := ws.NewHub()
-	go hub.Run()
+	// create websocket hubs
+	hubs := ws.InitHubs()
+	go hubs.AuctionHub.Run()
 	
 	// use extended context middleware
 	e.Use(app.ExtendedContext(dbPool, queries))
@@ -50,7 +50,7 @@ func main() {
 
 	// add routes/endpoints
 	routes.Global(e)
-	routes.V1(e, hub)
+	routes.V1(e, hubs)
 
 	// expose assets folder
 	e.Static("/assets", "assets/public")
@@ -63,7 +63,7 @@ func main() {
 	seed.SeedUsers(queries)
 
 	// start task scheduler
-	tasks.InitScheduler(queries)
+	tasks.InitScheduler(queries, hubs)
 
 	// start Echo server
 	startServer(e)

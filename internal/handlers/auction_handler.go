@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/DaniZGit/api.stick.it/internal/app"
@@ -17,7 +19,7 @@ import (
 //////////////////////////////
 /* POST - "/auction/offers" */
 //////////////////////////////
-func CreateAuctionOffer(c echo.Context) error {
+func CreateAuctionOffer(c echo.Context, hubs *ws.HubModels) error {
 	ctx := c.(*app.ApiContext)
 
 	a := new(data.AuctionOfferCreateRequest)
@@ -62,13 +64,32 @@ func CreateAuctionOffer(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, err)
 	}
 
+	// get auction offer data
+	auctionOfferData, err := qtx.GetAuctionOffer(ctx.Request().Context(), auctionOffer.ID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotAcceptable, err)
+	}
+
 	// commit transaction	
 	err = tx.Commit(ctx.Request().Context())
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.CastToAuctionOfferResponse(auctionOffer))
+	// broadcast the new auction offer to all clients
+	auctionOfferResponse := data.CastToAuctionOfferResponse(auctionOfferData)
+	event := ws.AuctionEvent{
+		Type: ws.AuctionEventTypeCreated,
+		Payload: auctionOfferResponse.AuctionOffer,
+	}
+	data, err := json.Marshal(event)
+	if err != nil {
+		fmt.Println("Failed to broadcast the auction offer create event", err)
+	} else {
+		hubs.AuctionHub.Broadcast <- data
+	}
+
+	return ctx.JSON(http.StatusCreated, auctionOfferResponse)
 }
 
 /////////////////////////////
@@ -88,7 +109,7 @@ func GetAuctionOffers(c echo.Context) error {
 ////////////////////////////
 /* POST - "/auction/bids" */
 ////////////////////////////
-func CreateAuctionBid(c echo.Context) error {
+func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 	ctx := c.(*app.ApiContext)
 
 	a := new(data.AuctionBidCreateRequest)
@@ -177,7 +198,20 @@ func CreateAuctionBid(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	return ctx.JSON(http.StatusCreated, data.CastToAuctionBidResponse(auctionBid, user))
+	// broadcast the new bid to all clients
+	auctionBidData := data.CastToAuctionBidResponse(auctionBid, user)
+	event := ws.AuctionEvent{
+		Type: ws.AuctionEventTypeBid,
+		Payload: auctionBidData.AuctionBid,
+	}
+	data, err := json.Marshal(event)
+	if err != nil {
+		fmt.Println("Failed to broadcast the auction bid event", err)
+	} else {
+		hubs.AuctionHub.Broadcast <- data
+	}
+
+	return ctx.JSON(http.StatusCreated, auctionBidData)
 }
 
 //////////////////////////////////////
@@ -203,10 +237,10 @@ func GetAuctionBids(c echo.Context) error {
 	return ctx.JSON(http.StatusCreated, data.CastToAuctionBidsResponse(auctionBids))
 }
 
-func ServeAuctionWS(c echo.Context, hub *ws.Hub) error {
+func ServeAuctionWS(c echo.Context, hubs *ws.HubModels) error {
 	ctx := c.(*app.ApiContext)
 	
-	ws.ServeWs(hub, ctx)
+	ws.ServeAuctionWs(hubs.AuctionHub, ctx)
 
 	return nil
 }

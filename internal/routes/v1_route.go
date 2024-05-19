@@ -13,7 +13,7 @@ func Global(e *echo.Echo) {
 	e.GET("/ping", func(c echo.Context) error {return c.JSON(http.StatusOK, "pong")})
 }
 
-func V1(e *echo.Echo, hub *ws.Hub) {
+func V1(e *echo.Echo, hubs *ws.HubModels) {
 	v1 := e.Group("/v1")
 
 	v1.POST("/register", handlers.UserRegister)
@@ -80,11 +80,15 @@ func V1(e *echo.Echo, hub *ws.Hub) {
 	v1.POST("/transactions/bundle", handlers.BuyBundle)
 
 	// auction
-	v1.POST("/auction/offers", handlers.CreateAuctionOffer)
+	v1.POST("/auction/offers", func(c echo.Context) error {
+		return handlers.CreateAuctionOffer(c, hubs)
+	})
 	v1.GET("/auction/offers", handlers.GetAuctionOffers)
 	v1.GET("/auction/bids", handlers.GetAuctionBids)
-	v1.POST("/auction/bids", handlers.CreateAuctionBid)
+	v1.POST("/auction/bids", func(c echo.Context) error {
+		return handlers.CreateAuctionBid(c, hubs)
+	})
 	e.GET("/v1/auction/ws", func(c echo.Context) error {
-		return handlers.ServeAuctionWS(c, hub)
+		return handlers.ServeAuctionWS(c, hubs)
 	})
 }

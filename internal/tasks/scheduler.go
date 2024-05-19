@@ -4,15 +4,16 @@ import (
 	"fmt"
 
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
+	"github.com/DaniZGit/api.stick.it/internal/ws"
 	"github.com/go-co-op/gocron/v2"
 )
 
-func InitScheduler(queries *database.Queries) {
+func InitScheduler(queries *database.Queries, hubs *ws.HubModels) {
 	fmt.Println("Starting task scheduler...")
-	go startScheduler(queries)
+	go startScheduler(queries, hubs)
 }
 
-func startScheduler(queries *database.Queries) {
+func startScheduler(queries *database.Queries, hubs *ws.HubModels) {
 	// create a scheduler
 	scheduler, err := gocron.NewScheduler()
 	if err != nil {
@@ -23,7 +24,7 @@ func startScheduler(queries *database.Queries) {
 	defer func() { _ = scheduler.Shutdown() }()
 
 	// add jobs to the scheduler
-	addTasks(scheduler, queries)
+	addTasks(scheduler, queries, hubs)
 
 	// start the scheduler
 	scheduler.Start()
@@ -32,7 +33,7 @@ func startScheduler(queries *database.Queries) {
 	select {}
 }
 
-func addTasks(scheduler gocron.Scheduler, queries *database.Queries) {
+func addTasks(scheduler gocron.Scheduler, queries *database.Queries, hubs *ws.HubModels) {
 	_, err := scheduler.NewJob(freebiesTask(queries))
 	if err != nil {
 		// handle error
@@ -40,7 +41,7 @@ func addTasks(scheduler gocron.Scheduler, queries *database.Queries) {
 		return
 	}
 
-	_, err = scheduler.NewJob(markCompletedAuctionsTask(queries))
+	_, err = scheduler.NewJob(markCompletedAuctionsTask(queries, hubs))
 	if err != nil {
 		// handle error
 		fmt.Println("error while creating completed auctions task", err)

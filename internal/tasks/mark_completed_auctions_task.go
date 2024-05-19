@@ -2,16 +2,19 @@ package tasks
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
+	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
+	"github.com/DaniZGit/api.stick.it/internal/ws"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-func markCompletedAuctionsTask(queries *database.Queries) (gocron.JobDefinition, gocron.Task) {
+func markCompletedAuctionsTask(queries *database.Queries, hubs *ws.HubModels) (gocron.JobDefinition, gocron.Task) {
 	cronDuration := gocron.DurationJob(
 		1*time.Minute,
 	)
@@ -75,6 +78,20 @@ func markCompletedAuctionsTask(queries *database.Queries) (gocron.JobDefinition,
 				})
 				if err != nil {
 					fmt.Println("Error while trying to increment auctioneer tokens in DB", err)
+				}
+
+				// broadcast the completed auction offer to all clients
+				event := ws.AuctionEvent{
+					Type: ws.AuctionEventTypeCompleted,
+					Payload: data.AuctionOffer{
+						ID: auctionOffer.ID,
+					},
+				}
+				data, err := json.Marshal(event)
+				if err != nil {
+					fmt.Println("Failed to broadcast the auction bid event", err)
+				} else {
+					hubs.AuctionHub.Broadcast <- data
 				}
 			}
 		},
