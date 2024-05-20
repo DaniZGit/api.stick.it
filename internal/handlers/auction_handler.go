@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"strconv"
 
 	"github.com/DaniZGit/api.stick.it/internal/app"
 	"github.com/DaniZGit/api.stick.it/internal/auth"
@@ -100,21 +99,20 @@ func CreateAuctionOffer(c echo.Context, hubs *ws.HubModels) error {
 func GetAuctionOffers(c echo.Context) error {
 	ctx := c.(*app.ApiContext)
 
-	l := ctx.QueryParam("limit")
-	limit, err := strconv.Atoi(l)
-	if err != nil {
-		limit = 12
+	a := new(data.AuctionOffersGetRequest)
+	if err := ctx.Bind(a); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
 
-	p := ctx.QueryParam("page")
-	page, err := strconv.Atoi(p)
-	if err != nil {
-		page = 0
+	if err := ctx.Validate(a); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
 
 	auctionOffers, err := ctx.Queries.GetAuctionOffers(ctx.Request().Context(), database.GetAuctionOffersParams{
-		Limit: int32(limit),
-		Offset: int32(limit * page),
+		Limit: int32(a.Limit),
+		Offset: int32(a.Limit * *a.Page),
+		SortField: a.SortField,
+		SortOrder: a.SortOrder,
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusNotFound, err)
@@ -123,8 +121,8 @@ func GetAuctionOffers(c echo.Context) error {
 	// build metadata
 	metadata := data.Metadata{}
 	if len(auctionOffers) > 0 {
-		metadata.CurrPage = int32(page)
-		metadata.PageSize = int32(limit)
+		metadata.CurrPage = int32(*a.Page)
+		metadata.PageSize = int32(a.Limit)
 		metadata.TotalRecords = int32(auctionOffers[0].TotalRows)
 		metadata.FirstPage = 0
 		metadata.LastPage = int32(math.Max(math.Ceil(float64(metadata.TotalRecords) / float64(metadata.PageSize)) - 1, 0))

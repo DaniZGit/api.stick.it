@@ -28,7 +28,11 @@ LEFT join LATERAL ( -- gets last auction bid
 	limit 1
 ) as ab on ab.auction_offer_id = ao.id
 WHERE ao.completed = false
-ORDER BY ao.created_at::timestamp + INTERVAL '1 millisecond' * duration ASC
+ORDER BY
+  CASE WHEN sqlc.arg(sort_field)::text = 'timespan' AND LOWER(sqlc.arg(sort_order))::text = 'asc' THEN (ao.created_at + INTERVAL '1 millisecond' * duration) END ASC,
+  CASE WHEN sqlc.arg(sort_field)::text = 'timespan' AND LOWER(sqlc.arg(sort_order))::text = 'desc' THEN (ao.created_at + INTERVAL '1 millisecond' * duration) END DESC,
+  CASE WHEN sqlc.arg(sort_field)::text = 'bid' AND LOWER(sqlc.arg(sort_order))::text = 'asc' THEN COALESCE(ab.bid, ao.starting_bid, 0) END ASC,
+  CASE WHEN sqlc.arg(sort_field)::text = 'bid' AND LOWER(sqlc.arg(sort_order))::text = 'desc' THEN COALESCE(ab.bid, ao.starting_bid, 0) END DESC
 LIMIT $1 OFFSET $2;
 
 -- name: GetAuctionOffer :one
