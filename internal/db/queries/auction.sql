@@ -4,7 +4,7 @@ VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetAuctionOffers :many
-SELECT ao.*, COALESCE(ab.bid, 0) as latest_bid,
+SELECT ao.*, COALESCE(ab.bid, 0) as latest_bid, COUNT(*) OVER() as "total_rows",
   us.user_id AS user_sticker_user_id, us.sticker_id AS user_sticker_sticker_id, us.amount AS user_sticker_amount, us.sticked AS user_sticker_sticked, -- user_sticker
   s.id AS sticker_id, s.created_at AS sticker_created_at, s.title AS sticker_title, s.type AS sticker_type, 
   s.top AS sticker_top, s.left AS sticker_left, s.width AS sticker_width, s.height AS sticker_height, 
@@ -27,7 +27,9 @@ LEFT join LATERAL ( -- gets last auction bid
 	order by bid desc
 	limit 1
 ) as ab on ab.auction_offer_id = ao.id
-WHERE ao.completed = false;
+WHERE ao.completed = false
+ORDER BY ao.created_at::timestamp + INTERVAL '1 millisecond' * duration ASC
+LIMIT $1 OFFSET $2;
 
 -- name: GetAuctionOffer :one
 SELECT ao.*, COALESCE(ab.bid, 0) as latest_bid,

@@ -33,6 +33,7 @@ type AuctionOfferResponse struct {
 
 type AuctionOffersResponse struct {
 	AuctionOffers []AuctionOffer `json:"auction_offers"`
+	Metadata Metadata `json:"metadata"`
 }
 
 type AuctionBidResponse struct {
@@ -108,10 +109,11 @@ func CastToAuctionOfferResponse(row database.GetAuctionOfferRow) AuctionOfferRes
 	}
 }
 
-func CastToAuctionOffersResponse(rows []database.GetAuctionOffersRow) AuctionOffersResponse {
+func CastToAuctionOffersResponse(rows []database.GetAuctionOffersRow, metadata Metadata) AuctionOffersResponse {
 	if rows == nil || len(rows) <= 0 {
 		return  AuctionOffersResponse{
 			AuctionOffers: []AuctionOffer{},
+			Metadata: metadata,
 		}
 	}
 
@@ -181,6 +183,7 @@ func CastToAuctionOffersResponse(rows []database.GetAuctionOffersRow) AuctionOff
 
 	return AuctionOffersResponse{
 		AuctionOffers: auctionOffers,
+		Metadata: metadata,
 	}
 }
 
