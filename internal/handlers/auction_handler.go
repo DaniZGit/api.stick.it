@@ -155,8 +155,6 @@ func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 	qtx := ctx.Queries.WithTx(tx)
 
 	claims := auth.GetClaimsFromToken(*ctx)
-	lastBid := 0
-	lastUserID := uuid.NullUUID{}
 
 	// get auction offer
 	auctionOffer, err := qtx.GetAuctionOffer(ctx.Request().Context(), a.AuctionOfferID)
@@ -168,28 +166,21 @@ func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, errors.New("cannot bid on your own auction offer"))
 	}
 
-	// get current bid
-	lastAuctionBid, err := qtx.GetLatestAuctionBid(ctx.Request().Context(), a.AuctionOfferID)
-	if err != nil && err != pgx.ErrNoRows {
+	// get last bid
+	lastAuctionBid, lastAuctionBidErr := qtx.GetLatestAuctionBid(ctx.Request().Context(), a.AuctionOfferID)
+	if lastAuctionBidErr != nil && lastAuctionBidErr != pgx.ErrNoRows {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, err)
-	}
-	// if there is no current bid, get starting_bid from auction offer instead
-	if (err == pgx.ErrNoRows) {
-		lastBid = int(auctionOffer.StartingBid)
-	} else {
-		lastBid = int(lastAuctionBid.Bid)
-		lastUserID = uuid.NullUUID{UUID: lastAuctionBid.UserID, Valid: true}
 	}
 
 	// check if current user is trying to outbid its own bid
-	if !lastUserID.UUID.IsNil() && claims.UserID == lastUserID.UUID {
+	if lastAuctionBidErr != pgx.ErrNoRows && claims.UserID == lastAuctionBid.UserID {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, errors.New("cannot outbid your own bid"))
 	}
 
 	// create auction bid
 	auctionBid, err := qtx.CreateAuctionBid(ctx.Request().Context(), database.CreateAuctionBidParams{
 		ID: uuid.Must(uuid.NewV4()),
-		Bid: int32(lastBid) + 1,
+		Bid: int32(auctionOffer.LatestBid) + 1,
 		AuctionOfferID: a.AuctionOfferID,
 		UserID: claims.UserID,
 	})
@@ -207,10 +198,11 @@ func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 	}
 
 	// if there were bids before, return last bid's user its tokens
-	if !lastUserID.UUID.IsNil() {
-		_, err = qtx.IncrementUserTokens(ctx.Request().Context(), database.IncrementUserTokensParams{
-			ID: lastUserID.UUID,
-			Tokens: int64(lastBid),
+	lastAuctionBidUser := database.User{}
+	if lastAuctionBidErr != pgx.ErrNoRows {
+		lastAuctionBidUser, err = qtx.IncrementUserTokens(ctx.Request().Context(), database.IncrementUserTokensParams{
+			ID: lastAuctionBid.UserID,
+			Tokens: int64(lastAuctionBid.Bid),
 		})
 		if err != nil {
 			return ctx.ErrorResponse(http.StatusInternalServerError, err)
@@ -225,9 +217,16 @@ func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 
 	// broadcast the new bid to all clients
 	auctionBidData := data.CastToAuctionBidResponse(auctionBid, user)
+	lastAuctionBidData := data.CastToLastAuctionBidResponse(lastAuctionBid, lastAuctionBidUser)
 	event := ws.AuctionEvent{
 		Type: ws.AuctionEventTypeBid,
-		Payload: auctionBidData.AuctionBid,
+		Payload: struct{
+			AuctionBid data.AuctionBid `json:"auction_bid"`
+			LastAuctionBid data.AuctionBid `json:"last_auction_bid"`
+		}{
+			AuctionBid: auctionBidData.AuctionBid,
+			LastAuctionBid: lastAuctionBidData.AuctionBid,
+		},
 	}
 	data, err := json.Marshal(event)
 	if err != nil {

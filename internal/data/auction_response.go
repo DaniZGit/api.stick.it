@@ -207,6 +207,26 @@ func CastToAuctionBidResponse(row database.AuctionBid, user database.User) Aucti
 	}
 }
 
+func CastToLastAuctionBidResponse(row database.GetLatestAuctionBidRow, user database.User) AuctionBidResponse {
+	auctionBid := AuctionBid{
+		ID: row.ID,
+		CreatedAt: row.CreatedAt,
+		Bid: int(row.Bid),
+		AuctionOfferID: row.AuctionOfferID,
+		UserID: row.UserID,
+		User: User{
+			ID: user.ID,
+			Username: user.Username,
+			Email: user.Email,
+			Tokens: int(user.Tokens),
+		},
+	}
+
+	return  AuctionBidResponse{
+		AuctionBid: auctionBid,
+	}
+}
+
 func CastToAuctionBidsResponse(rows []database.GetAuctionBidsRow) AuctionBidsResponse {
 	if rows == nil || len(rows) <= 0 {
 		return  AuctionBidsResponse{

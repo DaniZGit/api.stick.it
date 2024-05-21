@@ -4,7 +4,7 @@ VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetAuctionOffers :many
-SELECT ao.*, COALESCE(ab.bid, 0) as latest_bid, COUNT(*) OVER() as "total_rows",
+SELECT ao.*, COALESCE(ab.bid, ao.starting_bid, 0) as latest_bid, COUNT(*) OVER() as "total_rows",
   us.user_id AS user_sticker_user_id, us.sticker_id AS user_sticker_sticker_id, us.amount AS user_sticker_amount, us.sticked AS user_sticker_sticked, -- user_sticker
   s.id AS sticker_id, s.created_at AS sticker_created_at, s.title AS sticker_title, s.type AS sticker_type, 
   s.top AS sticker_top, s.left AS sticker_left, s.width AS sticker_width, s.height AS sticker_height, 
@@ -36,7 +36,7 @@ ORDER BY
 LIMIT $1 OFFSET $2;
 
 -- name: GetAuctionOffer :one
-SELECT ao.*, COALESCE(ab.bid, 0) as latest_bid,
+SELECT ao.*, COALESCE(ab.bid, ao.starting_bid, 0) as latest_bid,
   us.user_id AS user_sticker_user_id, us.sticker_id AS user_sticker_sticker_id, us.amount AS user_sticker_amount, us.sticked AS user_sticker_sticked, -- user_sticker
   s.id AS sticker_id, s.created_at AS sticker_created_at, s.title AS sticker_title, s.type AS sticker_type, 
   s.top AS sticker_top, s.left AS sticker_left, s.width AS sticker_width, s.height AS sticker_height, 
@@ -75,7 +75,8 @@ FROM auction_bids ab
 INNER JOIN users u ON ab.user_id = u.id
 LEFT JOIN files uf ON uf.id = u.file_id
 WHERE ab.auction_offer_id = $1
-ORDER BY ab.bid ASC;
+ORDER BY ab.created_at DESC
+LIMIT 3;
 
 -- name: GetLatestAuctionBid :one
 SELECT ab.*,
