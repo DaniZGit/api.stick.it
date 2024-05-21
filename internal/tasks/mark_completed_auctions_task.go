@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/DaniZGit/api.stick.it/internal/data"
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/DaniZGit/api.stick.it/internal/ws"
 	"github.com/go-co-op/gocron/v2"
@@ -60,7 +59,7 @@ func markCompletedAuctionsTask(queries *database.Queries, hubs *ws.HubModels) (g
 					bid = int(auctionBid.Bid)
 				}
 
-				// add the sticker to the user
+				// add the sticker to the winner or auctioneer
 				_, err = queries.CreateUserSticker(context.Background(), database.CreateUserStickerParams{
 					ID: uuid.Must(uuid.NewV4()),
 					UserID: userID,
@@ -71,20 +70,30 @@ func markCompletedAuctionsTask(queries *database.Queries, hubs *ws.HubModels) (g
 					fmt.Println("Error while adding sticker to the user in DB", err)
 				}
 
-				// add tokens to the auctioneer
-				_, err = queries.IncrementUserTokens(context.Background(), database.IncrementUserTokensParams{
-					ID: userSticker.UserID,
-					Tokens: int64(bid),
-				})
-				if err != nil {
-					fmt.Println("Error while trying to increment auctioneer tokens in DB", err)
+				// add tokens to the auctioneer if there was a winner
+				if auctionBidErr == nil {
+					_, err = queries.IncrementUserTokens(context.Background(), database.IncrementUserTokensParams{
+						ID: userSticker.UserID,
+						Tokens: int64(bid),
+					})
+					if err != nil {
+						fmt.Println("Error while trying to increment auctioneer tokens in DB", err)
+					}	
 				}
 
 				// broadcast the completed auction offer to all clients
 				event := ws.AuctionEvent{
 					Type: ws.AuctionEventTypeCompleted,
-					Payload: data.AuctionOffer{
-						ID: auctionOffer.ID,
+					Payload: struct{
+						AuctionOfferID uuid.UUID `json:"auction_offer_id"`
+						UserID uuid.UUID `json:"user_id"`
+						Bid int `json:"bid"`
+						Winner bool `json:"winner"`
+					}{
+						AuctionOfferID: auctionOffer.ID,
+						UserID: userSticker.UserID,
+						Bid: bid,
+						Winner: auctionBidErr == nil,
 					},
 				}
 				data, err := json.Marshal(event)
