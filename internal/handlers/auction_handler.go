@@ -108,11 +108,13 @@ func GetAuctionOffers(c echo.Context) error {
 		return ctx.ErrorResponse(http.StatusNotImplemented, err)
 	}
 
+	albumID := uuid.FromStringOrNil(a.AlbumID)
 	auctionOffers, err := ctx.Queries.GetAuctionOffers(ctx.Request().Context(), database.GetAuctionOffersParams{
 		Limit: int32(a.Limit),
 		Offset: int32(a.Limit * *a.Page),
 		SortField: a.SortField,
 		SortOrder: a.SortOrder,
+		AlbumID: uuid.NullUUID{UUID: albumID, Valid: !albumID.IsNil()},
 	})
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusNotFound, err)

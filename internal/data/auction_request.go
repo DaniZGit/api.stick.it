@@ -12,6 +12,7 @@ type AuctionOffersGetRequest struct {
 	Page *int `query:"page" validate:"required"`
 	SortField string `query:"sort_field" validate:"required,oneof=bid timespan"`
 	SortOrder string `query:"sort_order" validate:"required,oneof=asc ASC desc DESC"`
+	AlbumID string `query:"album_id"`
 }
 
 type AuctionBidCreateRequest struct {

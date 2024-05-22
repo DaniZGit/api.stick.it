@@ -27,7 +27,7 @@ LEFT join LATERAL ( -- gets last auction bid
 	order by bid desc
 	limit 1
 ) as ab on ab.auction_offer_id = ao.id
-WHERE ao.completed = false
+WHERE ao.completed = false AND (a.id = sqlc.narg('album_id') OR sqlc.narg('album_id') IS NULL)
 ORDER BY
   CASE WHEN sqlc.arg(sort_field)::text = 'timespan' AND LOWER(sqlc.arg(sort_order))::text = 'asc' THEN (ao.created_at + INTERVAL '1 millisecond' * duration) END ASC,
   CASE WHEN sqlc.arg(sort_field)::text = 'timespan' AND LOWER(sqlc.arg(sort_order))::text = 'desc' THEN (ao.created_at + INTERVAL '1 millisecond' * duration) END DESC,
