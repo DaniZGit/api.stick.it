@@ -52,6 +52,7 @@ ALTER TABLE auction_offers ADD CONSTRAINT auction_offers_user_sticker_id_user_st
 -- auction_bids
 ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_auction_offer_id_auction_offers_id FOREIGN KEY (auction_offer_id) REFERENCES auction_offers(id);
 ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_user_id_users_id FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_unique UNIQUE(auction_offer_id, bid);
 
 -- +goose Down
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_file_id_files_id;
@@ -84,3 +85,4 @@ ALTER TABLE opened_pack_stickers DROP CONSTRAINT IF EXISTS opened_pack_stickers_
 ALTER TABLE auction_offers DROP CONSTRAINT IF EXISTS auction_offers_user_sticker_id_user_stickers_id;
 ALTER TABLE auction_bids DROP CONSTRAINT IF EXISTS auction_bids_auction_offer_id_auction_offers_id;
 ALTER TABLE auction_bids DROP CONSTRAINT IF EXISTS auction_bids_user_id_users_id;
+ALTER TABLE auction_bids DROP CONSTRAINT IF EXISTS auction_bids_unique;
