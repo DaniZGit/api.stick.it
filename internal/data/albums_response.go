@@ -20,12 +20,31 @@ type Album struct {
 	Pages []Page `json:"pages"`
 }
 
+type UserAlbum struct {
+	ID        uuid.UUID        `json:"id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	Title  string           `json:"title"`
+	DateFrom string `json:"date_from"`
+	DateTo string `json:"date_to"`
+	Featured bool `json:"featured"`
+	PageNumerator int `json:"page_numerator"`
+	PageDenominator int `json:"page_denominator"`
+	File *File `json:"file"`
+	StickersAmount int `json:"stickers_amount"`
+	UserStickersAmount int `json:"user_stickers_amount"`
+	UserPacksAmount int `json:"user_packs_amount"`
+}
+
 type AlbumsResponse struct {
 	Albums []Album `json:"albums"`
 }
 
 type AlbumResponse struct {
 	Album Album `json:"album"`
+}
+
+type UserAlbumsResponse struct {
+	Albums []UserAlbum `json:"albums"`
 }
 
 func BuildAlbumResponse(albumRows interface{}, file *database.File) any {
@@ -53,6 +72,8 @@ func BuildAlbumResponse(albumRows interface{}, file *database.File) any {
 			return castToAlbumResponse(value)
 		case []database.GetAlbumsRow:
 			return castToAlbumsResponse(value)
+		case []database.GetUserAlbumsRow:
+			return castToUserAlbumsResponse(value)
 	}
 
 	return AlbumResponse{}
@@ -143,6 +164,46 @@ func castToAlbumsResponse(albumsRows []database.GetAlbumsRow) AlbumsResponse {
 	}
 	
 	return AlbumsResponse{
+		Albums: albums,
+	}
+}
+
+func castToUserAlbumsResponse(albumsRows []database.GetUserAlbumsRow) UserAlbumsResponse {
+	if albumsRows == nil || len(albumsRows) <= 0 {
+		return UserAlbumsResponse{
+			Albums: []UserAlbum{},
+		}
+	}
+
+	albums := []UserAlbum{}
+	for _, albumsRow := range albumsRows {
+		album := UserAlbum{
+			ID: albumsRow.ID,
+			CreatedAt: albumsRow.CreatedAt,
+			Title: albumsRow.Title,
+			DateFrom: albumsRow.DateFrom.Time.String(),
+			DateTo: albumsRow.DateTo.Time.String(),
+			Featured: albumsRow.Featured.Bool,
+			PageNumerator: int(albumsRow.PageNumerator),
+			PageDenominator: int(albumsRow.PageDenominator),
+			StickersAmount: int(albumsRow.StickersAmount),
+			UserStickersAmount: int(albumsRow.UserStickersAmount),
+			UserPacksAmount: int(albumsRow.UserPacksAmount),
+		}
+
+		// add file
+		if !albumsRow.AlbumFileID.UUID.IsNil() {
+			album.File = &File{
+				ID: albumsRow.AlbumFileID,
+				Name: albumsRow.AlbumFileName.String,
+				Url: assetmanager.GetPublicAssetsFileUrl(albumsRow.AlbumFilePath.String, ""),
+			}
+		}
+
+		albums = append(albums, album)
+	}
+	
+	return UserAlbumsResponse{
 		Albums: albums,
 	}
 }

@@ -32,6 +32,26 @@ func GetUser(c echo.Context) error {
 	return ctx.JSON(http.StatusOK, data.CastToUserResponse(user, token.Raw))
 }
 
+func GetUserAlbums(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	u := new(data.UserAlbumsGetRequest)
+	if err := ctx.Bind(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	albums, err := ctx.Queries.GetUserAlbums(ctx.Request().Context(), u.ID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, data.BuildAlbumResponse(albums, nil))
+}
+
 func GetUserPacks(c echo.Context) error {
 	ctx := c.(*app.ApiContext)
 

@@ -36,6 +36,32 @@ SET tokens = tokens - $1
 WHERE id = $2
 RETURNING *;
 
+-- name: GetUserAlbums :many
+SELECT a.*, 
+  af.id AS album_file_id, af.name AS album_file_name, af.path AS album_file_path, -- album file
+  coalesce(ups.user_packs_amount, 0) as "user_packs_amount", coalesce(uss.user_stickers_amount, 0) as "user_stickers_amount", COUNT(ps.id) as "stickers_amount"
+FROM albums a
+LEFT JOIN files AS af ON a.file_id = af.id
+INNER JOIN pages ap on a.id = ap.album_id 
+INNER JOIN stickers ps on ap.id = ps.page_id
+LEFT JOIN LATERAL (
+	SELECT p.album_id, SUM(up.amount) as user_packs_amount
+	FROM packs p
+  	INNER JOIN user_packs up ON p.id = up.pack_id
+	WHERE p.album_id = a.id AND up.user_id = $1 and up.amount > 0
+  	GROUP BY p.album_id
+) as ups on ups.album_id = a.id
+LEFT JOIN LATERAL (
+	SELECT p.album_id, COUNT(us.id) as user_stickers_amount
+	FROM user_stickers us 
+  INNER JOIN stickers s ON us.sticker_id = s.id
+  INNER JOIN pages p on s.page_id = p.id
+	WHERE us.user_id = $1 and us.sticked = true
+  	GROUP BY p.album_id
+) as uss on uss.album_id = a.id
+GROUP BY a.id, af.id, ups.user_packs_amount, uss.user_stickers_amount
+ORDER BY a.created_at DESC;
+
 -- name: GetUserPacks :many
 SELECT up.*,
   p.created_at as pack_created_at, p.title as pack_title, p.price as pack_price, p.amount pack_amount, p.album_id as pack_album_id, -- pack
