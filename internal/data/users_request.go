@@ -17,6 +17,10 @@ type UserLoginParams struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type UserUpdateRequest struct {
+	AvatarID uuid.UUID `json:"avatar_id" validate:"required"`
+}
+
 type UserAlbumsGetRequest struct {
 	ID uuid.UUID `param:"id" validate:"required"`
 }

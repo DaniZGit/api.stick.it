@@ -29,7 +29,38 @@ func GetUser(c echo.Context) error {
 	}
 	token := ctx.Get("user").(*jwt.Token)
 
-	return ctx.JSON(http.StatusOK, data.CastToUserResponse(user, token.Raw))
+	return ctx.JSON(http.StatusOK, data.CastToUserByIDResponse(user, token.Raw))
+}
+
+func UpdateUser(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	u := new(data.UserUpdateRequest)
+	if err := ctx.Bind(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	if err := ctx.Validate(u); err != nil {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+
+	claims := auth.GetClaimsFromToken(*ctx)
+
+	_, err := ctx.Queries.UpdateUser(ctx.Request().Context(), database.UpdateUserParams{
+		ID: claims.UserID,
+		AvatarID: uuid.NullUUID{UUID: u.AvatarID, Valid: !u.AvatarID.IsNil()},
+	})
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+
+	user, err := ctx.Queries.GetUserByID(ctx.Request().Context(), claims.UserID)
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusInternalServerError, err)
+	}
+	token := ctx.Get("user").(*jwt.Token)
+
+	return ctx.JSON(http.StatusOK, data.CastToUserByIDResponse(user, token.Raw))
 }
 
 func GetUserAlbums(c echo.Context) error {

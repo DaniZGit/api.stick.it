@@ -217,8 +217,17 @@ func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
+	// get user avatar
+	avatar := database.GetAvatarRow{}
+	if (user.AvatarID.Valid) {
+		avatar, err = ctx.Queries.GetAvatar(ctx.Request().Context(), user.AvatarID.UUID)
+		if err != nil {
+			return ctx.ErrorResponse(http.StatusInternalServerError, err)
+		}
+	}
+
 	// broadcast the new bid to all clients
-	auctionBidData := data.CastToAuctionBidResponse(auctionBid, user)
+	auctionBidData := data.CastToAuctionBidResponse(auctionBid, user, avatar)
 	lastAuctionBidData := data.CastToLastAuctionBidResponse(lastAuctionBid, lastAuctionBidUser)
 	event := ws.AuctionEvent{
 		Type: ws.AuctionEventTypeBid,

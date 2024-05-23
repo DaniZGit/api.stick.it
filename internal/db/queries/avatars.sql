@@ -19,5 +19,13 @@ RETURNING *;
 SELECT a.*, COUNT(*) OVER() as "total_rows",
   af.id AS avatar_file_id, af.name AS avatar_file_name, af.path AS avatar_file_path -- avatar file
 FROM avatars a
-INNER JOIN files af on a.file_id = af.id
+LEFT JOIN files af on a.file_id = af.id
 LIMIT $1 OFFSET $2;
+
+-- name: GetAvatar :one
+SELECT a.*,
+  af.id AS avatar_file_id, af.name AS avatar_file_name, af.path AS avatar_file_path -- avatar file
+FROM avatars a
+LEFT JOIN files af on a.file_id = af.id
+WHERE a.id = $1
+LIMIT 1;

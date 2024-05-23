@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/DaniZGit/api.stick.it/environment"
@@ -86,24 +85,14 @@ func BuyPack(c echo.Context) error {
 	}
 
 	claims := auth.GetClaimsFromToken(*ctx)
-	user, err := ctx.Queries.GetUserByID(ctx.Request().Context(), claims.UserID)
-	if err != nil {
-		return ctx.ErrorResponse(http.StatusInternalServerError, err)
-	}
-
 	pack, err := ctx.Queries.GetPack(ctx.Request().Context(), t.PackID)
 	if err != nil {
 		return ctx.ErrorResponse(http.StatusInternalServerError, err)
 	}
 
-	// check if user has enough tokens to buy the pack
-	if (user.Tokens < int64(pack.Price) * int64(t.Amount)) {
-		return ctx.ErrorResponse(http.StatusUnprocessableEntity, errors.New("user doesn't have enough tokens"))
-	}
-
 	// decrement user tokens by pack cost * amount of packs bought
-	user, err = ctx.Queries.DecrementUserTokens(ctx.Request().Context(), database.DecrementUserTokensParams{
-		ID: user.ID,
+	user, err := ctx.Queries.DecrementUserTokens(ctx.Request().Context(), database.DecrementUserTokensParams{
+		ID: claims.UserID,
 		Tokens: int64(pack.Price) * int64(t.Amount),
 	})
 	if err != nil {

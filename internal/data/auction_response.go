@@ -187,7 +187,7 @@ func CastToAuctionOffersResponse(rows []database.GetAuctionOffersRow, metadata M
 	}
 }
 
-func CastToAuctionBidResponse(row database.AuctionBid, user database.User) AuctionBidResponse {
+func CastToAuctionBidResponse(row database.AuctionBid, user database.User, avatar database.GetAvatarRow) AuctionBidResponse {
 	auctionBid := AuctionBid{
 		ID: row.ID,
 		CreatedAt: row.CreatedAt,
@@ -199,6 +199,15 @@ func CastToAuctionBidResponse(row database.AuctionBid, user database.User) Aucti
 			Username: user.Username,
 			Email: user.Email,
 			Tokens: int(user.Tokens),
+			Avatar: Avatar{
+				ID: avatar.ID,
+				Title: avatar.Title,
+				File: &File{
+					ID: avatar.AvatarFileID,
+					Name: avatar.AvatarFileName.String,
+					Url: assetmanager.GetPublicAssetsFileUrl(avatar.AvatarFilePath.String, ""),
+				},
+			},
 		},
 	}
 
@@ -219,6 +228,15 @@ func CastToLastAuctionBidResponse(row database.GetLatestAuctionBidRow, user data
 			Username: user.Username,
 			Email: user.Email,
 			Tokens: int(user.Tokens),
+			Avatar: Avatar{
+				ID: row.AvatarID.UUID,
+				Title: row.AvatarTitle.String,
+				File: &File{
+					ID: row.AvatarFileID,
+					Name: row.AvatarFileName.String,
+					Url: assetmanager.GetPublicAssetsFileUrl(row.AvatarFilePath.String, ""),
+				},
+			},
 		},
 	}
 
@@ -247,6 +265,15 @@ func CastToAuctionBidsResponse(rows []database.GetAuctionBidsRow) AuctionBidsRes
 				Username: row.UserUsername,
 				Email: row.UserEmail,
 				Tokens: int(row.UserTokens),
+				Avatar: Avatar{
+					ID: row.AvatarID.UUID,
+					Title: row.AvatarTitle.String,
+					File: &File{
+						ID: row.AvatarFileID,
+						Name: row.AvatarFileName.String,
+						Url: assetmanager.GetPublicAssetsFileUrl(row.AvatarFilePath.String, ""),
+					},
+				},
 			},
 		}
 

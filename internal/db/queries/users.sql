@@ -15,14 +15,24 @@ FROM users
 WHERE lower(email)=lower($1);
 
 -- name: GetUserByID :one
-SELECT *
-FROM users
-WHERE id=$1;
+SELECT u.*, 
+  a.title as avatar_title, -- avatar
+  af.id AS avatar_file_id, af.name AS avatar_file_name, af.path AS avatar_file_path -- avatar file
+FROM users u
+LEFT JOIN avatars a on u.avatar_id = a.id
+LEFT JOIN files af on a.file_id = af.id
+WHERE u.id=$1;
 
 -- name: GetUsers :many
 SELECT *
 FROM users
 LIMIT $1 OFFSET $2;
+
+-- name: UpdateUser :one
+UPDATE users
+SET avatar_id = $1
+WHERE id = $2
+RETURNING *;
 
 -- name: IncrementUserTokens :one
 UPDATE users

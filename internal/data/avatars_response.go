@@ -59,8 +59,8 @@ func CastToAvatarsResponse(rows []database.GetAvatarsRow, metadata Metadata) Ava
 			Title: row.Title,
 			File: &File{
 				ID: row.FileID,
-				Name: row.AvatarFileName,
-				Url: assetmanager.GetPublicAssetsFileUrl(row.AvatarFilePath, ""),
+				Name: row.AvatarFileName.String,
+				Url: assetmanager.GetPublicAssetsFileUrl(row.AvatarFilePath.String, ""),
 			},
 		}
 

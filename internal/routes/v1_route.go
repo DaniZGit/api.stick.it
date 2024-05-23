@@ -23,6 +23,7 @@ func V1(e *echo.Echo, hubs *ws.HubModels) {
 	// use JWT auth
 	v1.Use(middleware.JwtAuth())
 	v1.GET("/users/:id", handlers.GetUser)
+	v1.PUT("/users/:id", handlers.UpdateUser)
 	v1.GET("/users/:id/albums", handlers.GetUserAlbums)
 	v1.GET("/users/:id/packs", handlers.GetUserPacks)
 	v1.GET("/users/:id/stickers", handlers.GetUserStickers)

@@ -70,10 +70,12 @@ RETURNING *;
 -- name: GetAuctionBids :many
 SELECT ab.*,
   u.id AS user_user_id, u.username AS user_username, u.email AS user_email, u.tokens AS user_tokens, -- user
-  uf.id AS user_file_id, uf.name AS user_file_name, uf.path AS user_file_path -- user file
+  a.id AS avatar_id, a.title AS avatar_title, -- avatar
+  af.id AS avatar_file_id, af.name AS avatar_file_name, af.path AS avatar_file_path -- avatar file
 FROM auction_bids ab
 INNER JOIN users u ON ab.user_id = u.id
-LEFT JOIN files uf ON uf.id = u.file_id
+LEFT JOIN avatars a on u.avatar_id = a.id
+LEFT JOIN files af on a.file_id = af.id
 WHERE ab.auction_offer_id = $1
 ORDER BY ab.created_at DESC
 LIMIT 3;
@@ -81,11 +83,13 @@ LIMIT 3;
 -- name: GetLatestAuctionBid :one
 SELECT ab.*,
   u.id AS user_user_id, u.username AS user_username, u.email AS user_email, u.tokens AS user_tokens, -- user
-  uf.id AS user_file_id, uf.name AS user_file_name, uf.path AS user_file_path, -- user file
+  a.id AS avatar_id, a.title as avatar_title, -- avatar
+  af.id AS avatar_file_id, af.name AS avatar_file_name, af.path AS avatar_file_path, -- avatar file
   s.id AS sticker_id -- sticker
 FROM auction_bids ab
 INNER JOIN users u ON ab.user_id = u.id
-LEFT JOIN files uf ON uf.id = u.file_id
+LEFT JOIN avatars a on u.avatar_id = a.id
+LEFT JOIN files af on a.file_id = af.id
 INNER JOIN auction_offers ao ON ab.auction_offer_id = ao.id
 INNER JOIN user_stickers us ON ao.user_sticker_id = us.id
 INNER JOIN stickers s ON us.sticker_id = s.id
