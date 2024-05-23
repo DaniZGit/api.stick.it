@@ -49,6 +49,9 @@ func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder str
 		filename += ext
 	}
 
+	// create folder
+	_ = os.Mkdir(GetAssetsFileUrl(folder), os.ModeDir)
+
 	// upload the file to assets storage
 	fileInfo, err := UploadFile(f, GetAssetsFileUrl(folder, filename))
 	if err != nil {

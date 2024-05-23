@@ -35,6 +35,11 @@ func V1(e *echo.Echo, hubs *ws.HubModels) {
 	v1.GET("/roles", handlers.GetRoles)
 	v1.GET("/roles/:title", handlers.GetRoleByName)
 
+	v1.GET("/avatars", handlers.GetAvatars)
+	v1.POST("/avatars", handlers.CreateAvatar)
+	v1.PUT("/avatars/:id", handlers.UpdateAvatar)
+	v1.DELETE("/avatars/:id", handlers.DeleteAvatar)
+
 	v1.GET("/albums", handlers.GetAlbums)
 	v1.GET("/albums/:id", handlers.GetAlbum)
 	v1.POST("/albums", handlers.CreateAlbum)

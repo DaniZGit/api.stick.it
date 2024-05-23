@@ -11,7 +11,7 @@ CREATE TABLE users (
 	available_free_packs INT NOT NULL DEFAULT 1,
 	last_free_pack_obtain_date TIMESTAMP NOT NULL DEFAULT NOW(),
 	version BIGINT NOT NULL DEFAULT 0,
-	file_id UUID,
+	avatar_id UUID,
 	role_id UUID
 );
 

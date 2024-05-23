@@ -1,6 +1,6 @@
 -- +goose Up
 -- users
-ALTER TABLE users ADD CONSTRAINT users_file_id_files_id FOREIGN KEY (file_id) REFERENCES files(id);
+ALTER TABLE users ADD CONSTRAINT users_avatar_id_avatars_id FOREIGN KEY (avatar_id) REFERENCES avatars(id);
 ALTER TABLE users ADD CONSTRAINT users_role_id_roles_id FOREIGN KEY (role_id) REFERENCES roles(id);
 ALTER TABLE users ADD CONSTRAINT users_amount_positive CHECK (tokens >= 0);
 
@@ -55,7 +55,7 @@ ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_user_id_users_id FOREIGN KE
 ALTER TABLE auction_bids ADD CONSTRAINT auction_bids_unique UNIQUE(auction_offer_id, bid);
 
 -- +goose Down
-ALTER TABLE users DROP CONSTRAINT IF EXISTS users_file_id_files_id;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_avatar_id_avatars_id;
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_id_roles_id;
 ALTER TABLE users DROP CONSTRAINT IF EXISTS users_amount_positive;
 ALTER TABLE albums DROP CONSTRAINT IF EXISTS albums_file_id_files_id;
