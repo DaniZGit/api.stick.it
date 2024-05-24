@@ -30,8 +30,10 @@ LIMIT $1 OFFSET $2;
 
 -- name: UpdateUser :one
 UPDATE users
-SET avatar_id = $1
-WHERE id = $2
+SET 
+  description = $1,
+  avatar_id = $2
+WHERE id = $3
 RETURNING *;
 
 -- name: IncrementUserTokens :one

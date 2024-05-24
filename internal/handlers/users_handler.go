@@ -48,6 +48,7 @@ func UpdateUser(c echo.Context) error {
 
 	_, err := ctx.Queries.UpdateUser(ctx.Request().Context(), database.UpdateUserParams{
 		ID: claims.UserID,
+		Description: u.Description,
 		AvatarID: uuid.NullUUID{UUID: u.AvatarID, Valid: !u.AvatarID.IsNil()},
 	})
 	if err != nil {

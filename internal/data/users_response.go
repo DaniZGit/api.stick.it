@@ -12,6 +12,7 @@ type User struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	Username  string           `json:"username"`
 	Email     string           `json:"email"`
+	Description pgtype.Text `json:"description"`
 	Tokens 		int							 `json:"tokens"`
 	Token			string					 `json:"token,omitempty"`
 	AvailableFreePacks int `json:"available_free_packs"`
@@ -31,6 +32,7 @@ func CastToUserResponse(userRow database.User, token string) UserResponse {
 			CreatedAt: userRow.CreatedAt,
 			Username: userRow.Username,
 			Email: userRow.Email,
+			Description: userRow.Description,
 			Tokens: int(userRow.Tokens),
 			Token: token,
 			AvailableFreePacks: int(userRow.AvailableFreePacks),
@@ -47,6 +49,7 @@ func CastToUserByIDResponse(userRow database.GetUserByIDRow, token string) UserR
 			CreatedAt: userRow.CreatedAt,
 			Username: userRow.Username,
 			Email: userRow.Email,
+			Description: userRow.Description,
 			Tokens: int(userRow.Tokens),
 			Token: token,
 			AvailableFreePacks: int(userRow.AvailableFreePacks),

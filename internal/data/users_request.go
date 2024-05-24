@@ -1,6 +1,9 @@
 package data
 
-import "github.com/gofrs/uuid"
+import (
+	"github.com/gofrs/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
 type UserRegisterParams struct {
 	Username string `json:"username" validate:"required"`
@@ -18,6 +21,7 @@ type UserLoginParams struct {
 }
 
 type UserUpdateRequest struct {
+	Description pgtype.Text `json:"description" validate:"required"`
 	AvatarID uuid.UUID `json:"avatar_id" validate:"required"`
 }
 
