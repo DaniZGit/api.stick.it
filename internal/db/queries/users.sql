@@ -155,3 +155,28 @@ UPDATE user_stickers
 SET amount = amount - 1
 WHERE id = $1 AND amount > 0
 RETURNING *;
+
+-- name: GetUserFoundStickersCount :one
+SELECT count(us.sticker_id) as stickers_found
+FROM users u
+inner join user_stickers us on u.id = us.user_id
+WHERE u.id = $1
+group by u.id
+LIMIT 1;
+
+-- name: GetUserCompletedAlbumsCount :many
+select 1 as completed
+from user_stickers us
+inner join stickers s2 on s2.id = us.sticker_id
+inner join pages p2 on p2.id = s2.page_id
+where us.user_id = $1 and us.sticked = true
+group by p2.album_id 
+having count(us.sticker_id) = (
+  select count(s.id) as stickers_count
+  from albums a
+  inner join pages p on a.id = p.album_id
+  inner join stickers s on p.id = s.page_id
+  where a.id = p2.album_id 
+  group by a.id
+  limit 1
+);

@@ -12,6 +12,7 @@ import (
 	database "github.com/DaniZGit/api.stick.it/internal/db/generated/models"
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -383,4 +384,37 @@ func GetUserAuctionStickers(c echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, data.BuildStickerResponse(userStickers, &database.File{}, &database.Rarity{}))
+}
+
+/////////////////////////
+/* /users/:id/progress */
+/////////////////////////
+func GetUserProgress(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	completedAlbumsCount := 0
+	claims := auth.GetClaimsFromToken(*ctx)
+	completedAlbums, err := ctx.Queries.GetUserCompletedAlbumsCount(ctx.Request().Context(), claims.UserID)
+	if err != nil && err != pgx.ErrNoRows {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+	if err != pgx.ErrNoRows {
+		completedAlbumsCount = len(completedAlbums)
+	}
+
+	foundStickersCount := 0
+	stickersCount, err := ctx.Queries.GetUserFoundStickersCount(ctx.Request().Context(), claims.UserID)
+	if err != nil && err != pgx.ErrNoRows {
+		return ctx.ErrorResponse(http.StatusNotImplemented, err)
+	}
+	if err != pgx.ErrNoRows {
+		foundStickersCount = int(stickersCount)
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"progress": echo.Map{
+			"completed_albums_count": completedAlbumsCount,
+			"found_stickers_count": foundStickersCount,
+		},
+	})
 }
