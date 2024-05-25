@@ -40,3 +40,10 @@ RETURNING *;
 DELETE FROM albums
 WHERE id = $1
 RETURNING *;
+
+-- name: GetFeaturedAlbums :many
+SELECT a.*,
+  af.id AS album_file_id, af.name AS album_file_name, af.path AS album_file_path -- album file
+FROM albums a
+LEFT JOIN files AS af ON a.file_id = af.id
+WHERE featured = true;

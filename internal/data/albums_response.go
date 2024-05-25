@@ -74,6 +74,8 @@ func BuildAlbumResponse(albumRows interface{}, file *database.File) any {
 			return castToAlbumsResponse(value)
 		case []database.GetUserAlbumsRow:
 			return castToUserAlbumsResponse(value)
+		case []database.GetFeaturedAlbumsRow:
+			return castToFeaturedAlbumsResponse(value)
 	}
 
 	return AlbumResponse{}
@@ -204,6 +206,43 @@ func castToUserAlbumsResponse(albumsRows []database.GetUserAlbumsRow) UserAlbums
 	}
 	
 	return UserAlbumsResponse{
+		Albums: albums,
+	}
+}
+
+func castToFeaturedAlbumsResponse(albumsRows []database.GetFeaturedAlbumsRow) AlbumsResponse {
+	if albumsRows == nil || len(albumsRows) <= 0 {
+		return AlbumsResponse{
+			Albums: []Album{},
+		}
+	}
+
+	albums := []Album{}
+	for _, albumsRow := range albumsRows {
+		album := Album{
+			ID: albumsRow.ID,
+			CreatedAt: albumsRow.CreatedAt,
+			Title: albumsRow.Title,
+			DateFrom: albumsRow.DateFrom.Time.String(),
+			DateTo: albumsRow.DateTo.Time.String(),
+			Featured: albumsRow.Featured.Bool,
+			PageNumerator: int(albumsRow.PageNumerator),
+			PageDenominator: int(albumsRow.PageDenominator),
+		}
+
+		// add file
+		if !albumsRow.AlbumFileID.UUID.IsNil() {
+			album.File = &File{
+				ID: albumsRow.AlbumFileID,
+				Name: albumsRow.AlbumFileName.String,
+				Url: assetmanager.GetPublicAssetsFileUrl(albumsRow.AlbumFilePath.String, ""),
+			}
+		}
+
+		albums = append(albums, album)
+	}
+	
+	return AlbumsResponse{
 		Albums: albums,
 	}
 }

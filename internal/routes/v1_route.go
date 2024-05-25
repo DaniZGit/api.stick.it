@@ -49,6 +49,7 @@ func V1(e *echo.Echo, hubs *ws.HubModels) {
 	v1.DELETE("/albums/:id", handlers.DeleteAlbum)
 	v1.GET("/albums/:id/packs", handlers.GetAlbumPacks)
 	v1.GET("/albums/:id/pages", handlers.GetAlbumPages)
+	v1.GET("/albums/featured", handlers.GetFeaturedAlbums)
 
 	v1.POST("/pages", handlers.CreatePage)
 	v1.GET("/pages/:id", handlers.GetPage)

@@ -198,3 +198,17 @@ func GetAlbumPacks(c echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, data.BuildPackResponse(packs, &database.File{}))
 }
+
+//////////////////////////////
+/* GET - "/albums/featured" */
+//////////////////////////////
+func GetFeaturedAlbums(c echo.Context) error {
+	ctx := c.(*app.ApiContext)
+
+	albums, err := ctx.Queries.GetFeaturedAlbums(ctx.Request().Context())
+	if err != nil {
+		return ctx.ErrorResponse(http.StatusNotFound, err)
+	}
+
+	return ctx.JSON(http.StatusCreated, data.BuildAlbumResponse(albums, nil))
+}
