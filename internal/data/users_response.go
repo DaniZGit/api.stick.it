@@ -19,6 +19,7 @@ type User struct {
 	LastFreePackObtainDate pgtype.Timestamp `json:"last_free_pack_obtain_date"`
 	AvatarID uuid.UUID `json:"avatar_id"`
 	Avatar Avatar `json:"avatar"`
+	RoleID uuid.NullUUID `json:"role_id"`
 }
 
 type UserResponse struct {
@@ -38,6 +39,7 @@ func CastToUserResponse(userRow database.User, token string) UserResponse {
 			AvailableFreePacks: int(userRow.AvailableFreePacks),
 			LastFreePackObtainDate: userRow.LastFreePackObtainDate,
 			AvatarID: userRow.AvatarID.UUID,
+			RoleID: userRow.RoleID,
 		},
 	}
 }
@@ -64,6 +66,7 @@ func CastToUserByIDResponse(userRow database.GetUserByIDRow, token string) UserR
 					Url: assetmanager.GetPublicAssetsFileUrl(userRow.AvatarFilePath.String, ""),
 				},
 			},
+			RoleID: userRow.RoleID,
 		},
 	}
 }
