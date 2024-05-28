@@ -15,3 +15,4 @@ cmd/docker/volumes/*
 
 # public assets
 assets/public/*
+!assets/public/README.md
