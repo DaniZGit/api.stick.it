@@ -74,7 +74,7 @@ func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder str
 func UploadFile(file *multipart.FileHeader, localPath string) (fs.FileInfo, error) {
 	src, err := file.Open()
 	if err != nil {
-		return nil, errors.New("could not read the file")
+		return nil, errors.New("could not read the file " + err.Error())
 	}
 
 	defer src.Close()
@@ -82,18 +82,18 @@ func UploadFile(file *multipart.FileHeader, localPath string) (fs.FileInfo, erro
 	// Destination
 	dst, err := os.Create(localPath)
 	if err != nil {
-		return nil, errors.New("could not create the file")
+		return nil, errors.New("could not create the file " + err.Error())
 	}
 	defer dst.Close()
 
 	// Copy
 	if _, err = io.Copy(dst, src); err != nil {
-		return nil, errors.New("could not copy the file contents")
+		return nil, errors.New("could not copy the file contents " + err.Error())
 	}
 
 	fileInfo, err := dst.Stat()
 	if err != nil {
-		return nil, errors.New("could not read file info")
+		return nil, errors.New("could not read file info " + err.Error())
 	}
 
 	return fileInfo, nil
