@@ -5,7 +5,7 @@ bin
 internal/db/generated
 
 # vendor
-# vendor
+vendor
 
 # environment file
 .env
