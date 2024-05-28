@@ -55,8 +55,15 @@ func main() {
 	routes.V1(e, hubs)
 
 	// create assets folder
-	_ = os.Mkdir("assets", os.ModeDir)
-	_ = os.Mkdir("assets/public", os.ModeDir)
+	err = os.Mkdir("assets", os.ModeDir)
+	if err != nil {
+		fmt.Println("Error while creating assets folder", err)
+	}
+	err = os.Mkdir("assets/public", os.ModeDir)
+	if err != nil {
+		fmt.Println("Error while creating assets folder", err)
+	}
+
 	// expose assets folder
 	e.Static("/assets", "assets/public")
 
