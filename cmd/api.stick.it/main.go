@@ -72,10 +72,10 @@ func main() {
 
 func startServer(e *echo.Echo) {
 	fmt.Println("Starting server...")
-	serverUrl := environment.ServerUrl()
+	serverPort := environment.ServerPort()
 
 	s := http.Server{
-    Addr:        serverUrl,
+    Addr:        fmt.Sprintf(":%s", serverPort),
     Handler:     e,
     //ReadTimeout: 30 * time.Second, // customize http.Server timeouts
   }

@@ -17,6 +17,11 @@ func ServerUrl() string {
 	return val
 }
 
+func ServerPort() string {
+	val := readEnv("SERVER_PORT")
+	return val
+}
+
 func FrontendUrl() string {
 	val := readEnv("FRONTEND_URL")
 	return val
