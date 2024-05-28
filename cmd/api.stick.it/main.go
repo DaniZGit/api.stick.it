@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/DaniZGit/api.stick.it/cmd/seed"
 	"github.com/DaniZGit/api.stick.it/environment"
@@ -53,6 +54,9 @@ func main() {
 	routes.Global(e)
 	routes.V1(e, hubs)
 
+	// create assets folder
+	_ = os.Mkdir("assets", os.ModeDir)
+	_ = os.Mkdir("assets/public", os.ModeDir)
 	// expose assets folder
 	e.Static("/assets", "assets/public")
 
