@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/DaniZGit/api.stick.it/cmd/seed"
 	"github.com/DaniZGit/api.stick.it/environment"
@@ -73,6 +74,12 @@ func startServer(e *echo.Echo) {
 	fmt.Println("Starting server...")
 	serverUrl := environment.ServerUrl()
 
+	s := http.Server{
+    Addr:        serverUrl,
+    Handler:     e,
+    //ReadTimeout: 30 * time.Second, // customize http.Server timeouts
+  }
+
 	// Start
-	e.Logger.Fatal(e.Start(serverUrl))
+	e.Logger.Fatal(s.ListenAndServe())
 }
