@@ -87,7 +87,7 @@ func UploadFile(file *multipart.FileHeader, localPath string) (fs.FileInfo, erro
 	dst, err := os.Create(localPath)
 	if err != nil {
 		if serr, ok := err.(*os.PathError); ok {
-			fmt.Sprintf("path: '%s'\nop: '%s'\nerror: '%s'\n", serr.Path, serr.Op, serr.Err.Error())
+			fmt.Printf("path: '%s'\nop: '%s'\nerror: '%s'\n", serr.Path, serr.Op, serr.Err.Error())
 			return nil, fmt.Errorf("error while creating file '%s': %s", localPath, err.Error())
 		}
 	}
