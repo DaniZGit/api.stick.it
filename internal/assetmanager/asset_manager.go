@@ -51,7 +51,7 @@ func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder str
 	}
 
 	// create folder
-	dirErr := os.Mkdir(GetAssetsFileUrl(folder), os.ModeDir)
+	dirErr := os.Mkdir(GetAssetsFileUrl(folder), 0777)
 	if dirErr != nil {
 		fmt.Printf("error while creating folder '%s' with permission '%s': %s", folder, os.ModeDir, dirErr.Error())
 	}
