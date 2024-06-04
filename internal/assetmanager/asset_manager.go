@@ -78,7 +78,7 @@ func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder str
 func UploadFile(file *multipart.FileHeader, localPath string) (fs.FileInfo, error) {
 	src, err := file.Open()
 	if err != nil {
-		return nil, errors.New("could not read the file " + err.Error())
+		fmt.Printf("Error while creating folder", err.Error())
 	}
 
 	defer src.Close()
@@ -86,7 +86,10 @@ func UploadFile(file *multipart.FileHeader, localPath string) (fs.FileInfo, erro
 	// Destination
 	dst, err := os.Create(localPath)
 	if err != nil {
-		return nil, fmt.Errorf("error while creating file '%s': %s", localPath, err)
+		if serr, ok := err.(*os.PathError); ok {
+			fmt.Println(fmt.Sprintf("path: '%s'\nop: '%s'\nerror: '%s'", serr.Path, serr.Op, serr.Err.Error()))
+			return nil, fmt.Errorf("error while creating file '%s': %s", localPath, err.Error())
+		}
 	}
 	defer dst.Close()
 
