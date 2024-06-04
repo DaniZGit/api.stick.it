@@ -2,6 +2,7 @@ package assetmanager
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"mime/multipart"
@@ -50,7 +51,10 @@ func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder str
 	}
 
 	// create folder
-	_ = os.Mkdir(GetAssetsFileUrl(folder), os.ModeDir)
+	dirErr := os.Mkdir(GetAssetsFileUrl(folder), os.ModeDir)
+	if dirErr != nil {
+		return database.File{}, fmt.Errorf("error while creating folder '%s' with permission '%s'", folder, os.ModeDir)
+	}
 
 	// upload the file to assets storage
 	fileInfo, err := UploadFile(f, GetAssetsFileUrl(folder, filename))
@@ -82,7 +86,7 @@ func UploadFile(file *multipart.FileHeader, localPath string) (fs.FileInfo, erro
 	// Destination
 	dst, err := os.Create(localPath)
 	if err != nil {
-		return nil, errors.New("could not create the file " + err.Error())
+		return nil, fmt.Errorf("error while creating file '%s': %s", localPath, err)
 	}
 	defer dst.Close()
 
