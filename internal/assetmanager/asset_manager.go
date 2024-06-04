@@ -53,7 +53,7 @@ func CreateFileWithUUID(f *multipart.FileHeader, ctx *app.ApiContext, folder str
 	// create folder
 	dirErr := os.Mkdir(GetAssetsFileUrl(folder), os.ModeDir)
 	if dirErr != nil {
-		return database.File{}, fmt.Errorf("error while creating folder '%s' with permission '%s'", folder, os.ModeDir)
+		fmt.Printf("error while creating folder '%s' with permission '%s': %s", folder, os.ModeDir, dirErr.Error())
 	}
 
 	// upload the file to assets storage
