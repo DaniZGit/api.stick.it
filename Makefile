@@ -30,8 +30,8 @@ seed:
 	@go run cmd/seed/main.go
 
 host:
-	@go install github.com/pressly/goose/v3/cmd/goose@latest
 	@go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+	@go install github.com/pressly/goose/v3/cmd/goose@latest
 	$(MAKE) migrate-up
 	$(MAKE) sqlc
 	$(MAKE) build
