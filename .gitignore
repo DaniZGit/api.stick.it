@@ -8,7 +8,7 @@ internal/db/generated
 vendor
 
 # environment file
-.env
+# .env
 
 # docker volumes
 cmd/docker/volumes/*
