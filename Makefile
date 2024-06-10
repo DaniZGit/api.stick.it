@@ -30,9 +30,9 @@ seed:
 	@go run cmd/seed/main.go
 
 host:
-	# @go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-	@tar -C /opt -xzf sqlc_1.26.0_linux_amd64.tar.gz
+	@go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 	@go install github.com/pressly/goose/v3/cmd/goose@latest
+	@. ~/.bashrc
 	$(MAKE) migrate-up
 	$(MAKE) sqlc
 	$(MAKE) build
