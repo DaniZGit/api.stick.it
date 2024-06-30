@@ -179,10 +179,15 @@ func CreateAuctionBid(c echo.Context, hubs *ws.HubModels) error {
 		return ctx.ErrorResponse(http.StatusNotAcceptable, errors.New("cannot outbid your own bid"))
 	}
 
+	// make sure new bid is bigger than latest bid
+	if a.Bid <= int(auctionOffer.LatestBid) {
+		a.Bid = int(auctionOffer.LatestBid) + 1
+	}
+
 	// create auction bid
 	auctionBid, err := qtx.CreateAuctionBid(ctx.Request().Context(), database.CreateAuctionBidParams{
 		ID: uuid.Must(uuid.NewV4()),
-		Bid: int32(auctionOffer.LatestBid) + 1,
+		Bid: int32(a.Bid),
 		AuctionOfferID: a.AuctionOfferID,
 		UserID: claims.UserID,
 	})

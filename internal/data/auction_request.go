@@ -17,6 +17,7 @@ type AuctionOffersGetRequest struct {
 
 type AuctionBidCreateRequest struct {
 	AuctionOfferID uuid.UUID `json:"auction_offer_id" validate:"required"`
+	Bid int `json:"bid" validate:"required"`
 }
 
 type AuctionBidsGetRequest struct {
